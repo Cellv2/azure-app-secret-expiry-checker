@@ -1,7 +1,8 @@
 import fetch from "node-fetch";
+import AadGraphFunctions from "./services/microsoft/aad-graph.functions";
+import MsGraphFunctions from "./services/microsoft/ms-graph.functions";
 import { MsGraphService } from "./services/microsoft/ms-graph.service";
 
-import { TENANT_ID_DEV } from "./secrets";
 
 console.log("heya!");
 
@@ -11,6 +12,7 @@ const main = async (): Promise<void> => {
     const service = new MsGraphService();
     const connection = await service.connectToService();
     if (!connection) {
+        // TODO: Add logging
         throw new Error("Service connection was null");
     }
 
@@ -19,8 +21,8 @@ const main = async (): Promise<void> => {
 
     // TODO: add note about required permissions ()
     const url = useMsGraph
-        ? "https://graph.microsoft.com/v1.0/users"
-        : `https://graph.windows.net/${TENANT_ID_DEV}/users?api-version=1.6`;
+        ? MsGraphFunctions.getUsers()
+        : AadGraphFunctions.getUsers();
 
     const result = await fetch(url, {
         headers: {
