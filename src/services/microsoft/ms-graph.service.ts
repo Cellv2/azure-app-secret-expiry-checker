@@ -3,7 +3,7 @@ import {
     ConfidentialClientApplication,
     Configuration,
     NodeAuthOptions,
-    LogLevel as MsalLogLevel
+    LogLevel as MsalLogLevel,
 } from "@azure/msal-node";
 import {
     CLIENT_ID_DEV,
@@ -24,20 +24,31 @@ interface MsGraphServiceInterface extends MicrosoftServiceBaseInterface {}
 
 export const MsGraphService: MsGraphServiceConstructor = class MsGraphService
     implements MsGraphServiceInterface {
-
     //TODO: split these out into their separate classes / make abstract class
 
     connectToService = async () => {
+        const clientId = CLIENT_ID_DEV_2!;
+        const clientSecret = CLIENT_SECRET_DEV_2!;
+
         const authConfig: NodeAuthOptions = {
             authority: `https://login.microsoftonline.com/${TENANT_ID_DEV}`,
-            clientId: `${CLIENT_ID_DEV_2}`,
-            clientSecret: `${CLIENT_SECRET_DEV_2}`,
-            // clientId: `${CLIENT_ID_DEV}`,
-            // clientSecret: `${CLIENT_SECRET_DEV}`,
+            clientId,
+            clientSecret,
         };
 
         const config: Configuration = {
             auth: authConfig,
+            system: {
+                loggerOptions: {
+                    loggerCallback(loglevel, message, containsPii) {
+                        console.log(
+                            `${MsalLogLevel[loglevel]}|${clientId}|${message}`
+                        );
+                    },
+                    piiLoggingEnabled: false,
+                    logLevel: MsalLogLevel.Verbose,
+                },
+            },
         };
         const cca: ConfidentialClientApplication = new ConfidentialClientApplication(
             config
