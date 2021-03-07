@@ -46,7 +46,6 @@ export abstract class MicrosoftServiceBase {
             scopes: this.scopes,
         });
         // console.log(authResult);
-        console.log(new Date().toISOString());
         return authResult;
     };
 

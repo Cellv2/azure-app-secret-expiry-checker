@@ -1,4 +1,4 @@
-import { CLIENT_ID_DEV_2, CLIENT_SECRET_DEV_2, TENANT_ID_DEV } from "./secrets";
+import { testData } from "./data/testData";
 import AadGraphFunctions from "./services/microsoft/aad-graph.functions";
 import { AadGraphService } from "./services/microsoft/aad-graph.service";
 import { MicrosoftServiceBaseInterface } from "./services/microsoft/microsoft-service-base";
@@ -11,30 +11,30 @@ console.log("heya!");
 export const useMsGraph: boolean = false;
 
 const main = async (): Promise<void> => {
-    if (!CLIENT_ID_DEV_2 || !CLIENT_SECRET_DEV_2 || !TENANT_ID_DEV) {
-        throw new Error(
-            "Please check that the required entries are in the .env file"
-        );
-    }
+    const data = testData;
+    data.forEach(async (item) => {
+        const { clientId, clientSecret, tenantId, serviceToUse } = item;
 
-    let service: MicrosoftServiceBaseInterface;
-    let apiToCall: string;
-    if (useMsGraph) {
-        service = new MsGraphService();
-        apiToCall = MsGraphFunctions.getUsers();
-    } else {
-        service = new AadGraphService();
-        apiToCall = AadGraphFunctions.getUsers();
-    }
+        let service: MicrosoftServiceBaseInterface;
+        let apiToCall: string;
+        if (serviceToUse === "MsGraph") {
+            service = new MsGraphService();
+            apiToCall = MsGraphFunctions.getUsers();
+        } else {
+            service = new AadGraphService();
+            apiToCall = AadGraphFunctions.getUsers();
+        }
 
-    const clientConnection: ClientConnection = {
-        clientId: CLIENT_ID_DEV_2,
-        clientSecret: CLIENT_SECRET_DEV_2,
-        tenantId: TENANT_ID_DEV,
-    };
-    const response = await service.request(clientConnection, apiToCall);
+        const clientConnection: ClientConnection = {
+            clientId,
+            clientSecret,
+            tenantId,
+        };
+        const response = await service.request(clientConnection, apiToCall);
 
-    console.log(response);
+        console.log(response);
+        console.log(new Date().toISOString());
+    });
 };
 
 main();
