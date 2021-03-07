@@ -20,11 +20,8 @@ const main = async (): Promise<void> => {
         };
 
         let service: MicrosoftServiceBaseInterface;
-        let apiToCall: string;
         if (serviceToUse === "MsGraph") {
             service = new MsGraphService();
-            // apiToCall = MsGraphFunctions.getUsers();
-            // apiToCall = MsGraphFunctions.getAllApplications();
             MsGraphFunctions.getSecretsForMsGraphApplicationsByAppId(
                 service,
                 clientConnection,
@@ -32,8 +29,6 @@ const main = async (): Promise<void> => {
             );
         } else {
             service = new AadGraphService();
-            // apiToCall = AadGraphFunctions.getUsers();
-            // apiToCall = AadGraphFunctions.getAllApplications();
             AadGraphFunctions.getSecretsForAadGraphApplicationsByAppId(
                 service,
                 clientConnection,
