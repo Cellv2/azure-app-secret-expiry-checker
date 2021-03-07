@@ -7,7 +7,7 @@ interface MsGraphServiceConstructor {
     new (): MsGraphServiceInterface;
 }
 
-interface MsGraphServiceInterface extends MicrosoftServiceBaseInterface {}
+export interface MsGraphServiceInterface extends MicrosoftServiceBaseInterface {}
 
 export const MsGraphService: MsGraphServiceConstructor = class MsGraphService
     extends MicrosoftServiceBase

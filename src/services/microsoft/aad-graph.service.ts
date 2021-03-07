@@ -7,7 +7,7 @@ interface AadGraphServiceConstructor {
     new (): AadGraphServiceInterface;
 }
 
-interface AadGraphServiceInterface extends MicrosoftServiceBaseInterface {}
+export interface AadGraphServiceInterface extends MicrosoftServiceBaseInterface {}
 
 export const AadGraphService: AadGraphServiceConstructor = class AadGraphService
     extends MicrosoftServiceBase
