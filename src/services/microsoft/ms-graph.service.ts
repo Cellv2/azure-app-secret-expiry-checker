@@ -1,13 +1,4 @@
 import {
-    ConfidentialClientApplication,
-    Configuration,
-    LogLevel as MsalLogLevel,
-    NodeAuthOptions,
-} from "@azure/msal-node";
-import fetch from "node-fetch";
-import { useMsGraph } from "../../index";
-import { ClientConnection } from "../service.types";
-import {
     MicrosoftServiceBase,
     MicrosoftServiceBaseInterface,
 } from "./microsoft-service-base";
