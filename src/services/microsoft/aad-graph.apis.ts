@@ -1,7 +1,7 @@
 import { TENANT_ID_DEV } from "../../secrets";
 
 // https://docs.microsoft.com/en-us/previous-versions/azure/ad/graph/api/api-catalog
-namespace AadGraphFunctions {
+namespace AadGraphApis {
     const apiVersionString = "api-version=1.6";
     const baseUri: string = `https://graph.windows.net/${TENANT_ID_DEV}`;
 
@@ -20,4 +20,4 @@ namespace AadGraphFunctions {
     };
 }
 
-export default AadGraphFunctions;
+export default AadGraphApis;

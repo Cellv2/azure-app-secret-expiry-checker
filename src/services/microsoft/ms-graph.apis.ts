@@ -1,5 +1,5 @@
 // https://docs.microsoft.com/en-us/graph/api/overview?view=graph-rest-1.0
-namespace MsGraphFunctions {
+namespace MsGraphApis {
     const apiVersion = "v1.0";
     const baseUri: string = `https://graph.microsoft.com/${apiVersion}`;
 
@@ -18,4 +18,4 @@ namespace MsGraphFunctions {
     };
 }
 
-export default MsGraphFunctions;
+export default MsGraphApis;

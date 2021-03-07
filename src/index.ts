@@ -1,10 +1,10 @@
 import { GraphRbacManagementModels as AzureAdGraphModels } from "@azure/graph";
 import * as MicrosoftGraph from "@microsoft/microsoft-graph-types";
 import { testData } from "./data/testData";
-import AadGraphFunctions from "./services/microsoft/aad-graph.functions";
+import AadGraphApis from "./services/microsoft/aad-graph.apis";
 import { AadGraphService } from "./services/microsoft/aad-graph.service";
 import { MicrosoftServiceBaseInterface } from "./services/microsoft/microsoft-service-base";
-import MsGraphFunctions from "./services/microsoft/ms-graph.functions";
+import MsGraphApis from "./services/microsoft/ms-graph.apis";
 import { MsGraphService } from "./services/microsoft/ms-graph.service";
 import { ClientConnection } from "./services/service.types";
 
@@ -17,7 +17,7 @@ const getSecretsForAadGraphApplicationsByAppId = async (
 ) => {
     const response = await service.request(
         connection,
-        AadGraphFunctions.getAllApplications()
+        AadGraphApis.getAllApplications()
     );
     if (!response) {
         throw new Error("A fatal error occurred while querying AAD Graph");
@@ -64,7 +64,7 @@ const getSecretsForMsGraphApplicationsByAppId = async (
 ) => {
     const response = await service.request(
         connection,
-        MsGraphFunctions.getAllApplications()
+        MsGraphApis.getAllApplications()
     );
     if (!response) {
         throw new Error("A fatal error occurred while querying MS Graph");
