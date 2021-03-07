@@ -1,4 +1,4 @@
-import { TENANT_ID_DEV } from "../../secrets";
+import { TENANT_ID_DEV } from "../../config/secrets";
 
 // https://docs.microsoft.com/en-us/previous-versions/azure/ad/graph/api/api-catalog
 namespace AadGraphApis {

@@ -2,7 +2,7 @@ import {
     CLIENT_ID_DEV_2,
     CLIENT_SECRET_DEV_2,
     TENANT_ID_DEV,
-} from "../secrets";
+} from "../config/secrets";
 
 import { AvailableMicrosoftServices } from "../services/service.types";
 
