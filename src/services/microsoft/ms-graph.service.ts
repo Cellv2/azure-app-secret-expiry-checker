@@ -1,20 +1,13 @@
 import {
-    AuthenticationResult,
     ConfidentialClientApplication,
     Configuration,
-    NodeAuthOptions,
     LogLevel as MsalLogLevel,
+    NodeAuthOptions,
 } from "@azure/msal-node";
-import {
-    CLIENT_ID_DEV,
-    CLIENT_SECRET_DEV,
-    TENANT_ID_DEV,
-    CLIENT_ID_DEV_2,
-    CLIENT_SECRET_DEV_2,
-} from "../../secrets";
-import { MicrosoftServiceBaseInterface } from "./microsoft-service-base";
-
+import fetch from "node-fetch";
 import { useMsGraph } from "../../index";
+import { ClientConnection } from "../service.types";
+import { MicrosoftServiceBaseInterface } from "./microsoft-service-base";
 
 interface MsGraphServiceConstructor {
     new (): MsGraphServiceInterface;
@@ -26,12 +19,12 @@ export const MsGraphService: MsGraphServiceConstructor = class MsGraphService
     implements MsGraphServiceInterface {
     //TODO: split these out into their separate classes / make abstract class
 
-    connectToService = async () => {
-        const clientId = CLIENT_ID_DEV_2!;
-        const clientSecret = CLIENT_SECRET_DEV_2!;
+    // connectToService = async () => {
+    connectToService = async (connection: ClientConnection) => {
+        const { clientId, clientSecret, tenantId } = connection;
 
         const authConfig: NodeAuthOptions = {
-            authority: `https://login.microsoftonline.com/${TENANT_ID_DEV}`,
+            authority: `https://login.microsoftonline.com/${tenantId}`,
             clientId,
             clientSecret,
         };
@@ -66,5 +59,30 @@ export const MsGraphService: MsGraphServiceConstructor = class MsGraphService
         // console.log(authResult);
         console.log(new Date().toISOString());
         return authResult;
+    };
+
+    request = async (connection: ClientConnection, requestUrl: string) => {
+        const connectedService = await this.connectToService(connection);
+        if (!connectedService) {
+            // TODO: Add logging
+            throw new Error("Service connection was null");
+        }
+
+        const bearerToken = `Bearer ${connectedService.accessToken}`;
+
+        const result = await fetch(requestUrl, {
+            headers: {
+                Authorization: bearerToken,
+            },
+        });
+
+        if (!result.ok) {
+            console.warn(
+                `Connection issue for clientId ${connection.clientId}`
+            );
+            return;
+        }
+
+        return result;
     };
 };
