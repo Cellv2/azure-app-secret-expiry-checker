@@ -4,7 +4,7 @@ import { AadGraphService } from "./services/microsoft/aad-graph.service";
 import { MicrosoftServiceBaseInterface } from "./services/microsoft/microsoft-service-base";
 import MsGraphFunctions from "./services/microsoft/ms-graph.functions";
 import { MsGraphService } from "./services/microsoft/ms-graph.service";
-import { ClientConnection } from "./services/service.types";
+import { ClientConnection } from "./types/microsoft-service.types";
 
 console.log("heya!");
 

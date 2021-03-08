@@ -1,5 +1,5 @@
 import * as MicrosoftGraph from "@microsoft/microsoft-graph-types";
-import { ClientConnection } from "../service.types";
+import { ClientConnection } from "../../types/microsoft-service.types";
 import MsGraphApis from "./ms-graph.apis";
 import { MsGraphServiceInterface } from "./ms-graph.service";
 

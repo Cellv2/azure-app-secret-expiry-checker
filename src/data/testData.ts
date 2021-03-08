@@ -4,7 +4,7 @@ import {
     TENANT_ID_DEV,
 } from "../config/secrets";
 
-import { AvailableMicrosoftServices } from "../services/service.types";
+import { AvailableMicrosoftServices } from "../types/microsoft-service.types";
 
 type Data = {
     tenantId: string;

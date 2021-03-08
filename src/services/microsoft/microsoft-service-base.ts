@@ -5,7 +5,7 @@ import {
     NodeAuthOptions,
 } from "@azure/msal-node";
 import fetch, { Response } from "node-fetch";
-import { ClientConnection } from "../service.types";
+import { ClientConnection } from "../../types/microsoft-service.types";
 
 export interface MicrosoftServiceBaseInterface {
     request(

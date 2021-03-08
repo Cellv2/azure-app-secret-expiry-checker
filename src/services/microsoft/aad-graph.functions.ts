@@ -1,5 +1,5 @@
 import { GraphRbacManagementModels as AzureAdGraphModels } from "@azure/graph";
-import { ClientConnection } from "../service.types";
+import { ClientConnection } from "../../types/microsoft-service.types";
 import AadGraphApis from "./aad-graph.apis";
 import { AadGraphServiceInterface } from "./aad-graph.service";
 
