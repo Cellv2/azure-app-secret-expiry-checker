@@ -6,6 +6,9 @@ import MsGraphFunctions from "./services/microsoft/ms-graph.functions";
 import { MsGraphService } from "./services/microsoft/ms-graph.service";
 import { ClientConnection } from "./types/microsoft-service.types";
 
+import filesystemInterfaceInstance from "./services/filesystem/filesystem-interface.service";
+import Config from "./config/config";
+
 console.log("heya!");
 
 const main = async (): Promise<void> => {
@@ -38,4 +41,14 @@ const main = async (): Promise<void> => {
     });
 };
 
-main();
+const mainFs = () => {
+    const config = new Config("", "", "");
+    // console.log(config.getRootDir());
+    console.log(Config.rootDir);
+
+    filesystemInterfaceInstance.writeDataToFilesystemAsync("", "");
+};
+
+// main();
+
+mainFs();
