@@ -24,7 +24,7 @@ const FilesystemInterface: FilesystemInterfaceConstructor = class FilesystemInte
         outputDir: string,
         outputFileName: string
     ) => {
-        let outputFilePath;
+        let outputFilePath: string;
         if (typeof outputDir !== "string" || outputDir.length === 0) {
             console.warn(
                 `An invalid directory was provided, falling back to ${Config.defaultOutputDir}`
@@ -43,7 +43,14 @@ const FilesystemInterface: FilesystemInterfaceConstructor = class FilesystemInte
             outputFilePath = path.join(outputFilePath, outputFileName);
         }
 
-        console.log(outputFilePath);
+        // TODO: fix file dirs not being created if they do not exist
+        fs.writeFile(outputFilePath, "KEKW", (err) => {
+            if (err) {
+                throw err;
+            }
+
+            console.log(`File saved at ${outputFilePath}`);
+        });
     };
 };
 
