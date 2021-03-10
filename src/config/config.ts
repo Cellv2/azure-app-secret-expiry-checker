@@ -1,15 +1,21 @@
+import path from "path";
+
 interface ConfigConstructor {
     new (
         inputFilePath: string,
         outputFileDir: string,
         outputFileName: string
-    ): void;
+    ): ConfigInterface;
+    rootDir: string;
+    defaultFileName: string;
+    defaultOutputDir: string;
 }
 
 interface ConfigInterface {
     getInputFilePath: () => string;
     getOutputFileDir: () => string;
     getOutputFileName: () => string;
+    getRootDir: () => string;
 }
 
 /**
@@ -32,6 +38,10 @@ const Config: ConfigConstructor = class Config implements ConfigInterface {
         this.outputFileName = outputFileName;
     }
 
+    static rootDir: string = path.resolve(__dirname, "../../");
+    static defaultFileName: string = "data.json";
+    static defaultOutputDir: string = "dataOutput";
+
     getInputFilePath = (): string => {
         return this.inputFilePath;
     };
@@ -42,6 +52,10 @@ const Config: ConfigConstructor = class Config implements ConfigInterface {
 
     getOutputFileName = (): string => {
         return this.outputFileName;
+    };
+
+    getRootDir = (): string => {
+        return Config.rootDir;
     };
 };
 
