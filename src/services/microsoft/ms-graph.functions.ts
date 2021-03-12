@@ -15,41 +15,48 @@ namespace MsGraphFunctions {
         connection: ClientConnection,
         applicationId: string
     ) => {
-        const response = await service.request(
-            connection,
-            MsGraphApis.getAllApplications()
-        );
-        if (!response) {
-            throw new Error("A fatal error occurred while querying MS Graph");
-        }
-
-        if (!response.ok) {
-            console.error("Response was not a 200");
-            return;
-        }
-
-        const responseJson = await response.json();
-        if (!responseJson.value) {
-            console.error(
-                "There was no value property on the response. This probably shouldn't happen"
+        try {
+            const response = await service.request(
+                connection,
+                MsGraphApis.getAllApplications()
             );
-            return;
-        }
+            if (!response) {
+                throw new Error(
+                    "A fatal error occurred while querying MS Graph"
+                );
+            }
 
-        const allApplications = responseJson.value as MicrosoftGraph.Application[];
-        const targetApplication = allApplications.find(
-            (app) => app.appId === applicationId
-        );
-        if (!targetApplication) {
-            console.warn(
-                `Client ID "${connection.clientId}" in tenant "${connection.tenantId}" was not found`
+            if (!response.ok) {
+                console.error("Response was not a 200");
+                return;
+            }
+
+            const responseJson = await response.json();
+            if (!responseJson.value) {
+                console.error(
+                    "There was no value property on the response. This probably shouldn't happen"
+                );
+                return;
+            }
+
+            const allApplications = responseJson.value as MicrosoftGraph.Application[];
+            const targetApplication = allApplications.find(
+                (app) => app.appId === applicationId
             );
-            return;
-        }
+            if (!targetApplication) {
+                console.warn(
+                    `Client ID "${connection.clientId}" in tenant "${connection.tenantId}" was not found`
+                );
+                return;
+            }
 
-        const secrets = targetApplication.passwordCredentials;
-        console.log(secrets);
-        return secrets;
+            const secrets = targetApplication.passwordCredentials;
+            console.log(secrets);
+            return secrets;
+        } catch (err) {
+            //TODO: name this better
+            throw err;
+        }
     };
 }
 export default MsGraphFunctions;

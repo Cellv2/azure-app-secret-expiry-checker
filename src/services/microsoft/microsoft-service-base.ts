@@ -38,39 +38,51 @@ export abstract class MicrosoftServiceBase {
                 },
             },
         };
-        const cca: ConfidentialClientApplication = new ConfidentialClientApplication(
-            config
-        );
 
-        const authResult = await cca.acquireTokenByClientCredential({
-            scopes: this.scopes,
-        });
-        // console.log(authResult);
-        return authResult;
+        try {
+            const cca: ConfidentialClientApplication = new ConfidentialClientApplication(
+                config
+            );
+
+            const authResult = await cca.acquireTokenByClientCredential({
+                scopes: this.scopes,
+            });
+
+            return authResult;
+        } catch (err) {
+            // TODO: make this better
+            throw err;
+        }
     };
 
     request = async (connection: ClientConnection, requestUrl: string) => {
-        const connectedService = await this.connectToService(connection);
-        if (!connectedService) {
-            // TODO: Add logging
-            throw new Error("Service connection was null");
+        try {
+            const connectedService = await this.connectToService(connection);
+
+            if (!connectedService) {
+                // TODO: Add logging
+                throw new Error("Service connection was null");
+            }
+
+            const bearerToken = `Bearer ${connectedService.accessToken}`;
+
+            const result = await fetch(requestUrl, {
+                headers: {
+                    Authorization: bearerToken,
+                },
+            });
+
+            if (!result.ok) {
+                console.warn(
+                    `Connection issue for clientId ${connection.clientId}`
+                );
+                return;
+            }
+
+            return result;
+        } catch (err) {
+            // TODO: make this better
+            throw err;
         }
-
-        const bearerToken = `Bearer ${connectedService.accessToken}`;
-
-        const result = await fetch(requestUrl, {
-            headers: {
-                Authorization: bearerToken,
-            },
-        });
-
-        if (!result.ok) {
-            console.warn(
-                `Connection issue for clientId ${connection.clientId}`
-            );
-            return;
-        }
-
-        return result;
     };
 }
