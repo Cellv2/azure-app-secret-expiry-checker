@@ -14,6 +14,25 @@ interface FilesystemInterfaceInterface {
     ): Promise<void>;
 }
 
+const ensureDirExistsAsync = async (dirPathToTest: string) => {
+    try {
+        await fs.promises.access(dirPathToTest);
+        console.log("The provided path exists");
+        console.log(`Creating output at ${dirPathToTest}`);
+    } catch (err) {
+        console.warn(`Path provided does not exist!`);
+        console.warn(`Creating directory at ${dirPathToTest}`);
+        fs.mkdir(dirPathToTest, { recursive: true }, (err, path) => {
+            if (!err) {
+                console.log(`Directory successfully created at ${path}`);
+            } else {
+                console.error("Unable to create directory - exiting...");
+                throw err;
+            }
+        });
+    }
+};
+
 const FilesystemInterface: FilesystemInterfaceConstructor = class FilesystemInterface
     implements FilesystemInterfaceInterface {
     readDataFromFIlesystemAsync = async (inputFilePath: string) => {};
@@ -24,26 +43,29 @@ const FilesystemInterface: FilesystemInterfaceConstructor = class FilesystemInte
         outputDir: string,
         outputFileName: string
     ) => {
-        let outputFilePath: string;
+        let targetDir: string;
+        let targetFileName: string;
         if (typeof outputDir !== "string" || outputDir.length === 0) {
             console.warn(
                 `An invalid directory was provided, falling back to ${Config.defaultOutputDir}`
             );
-            outputFilePath = path.join(Config.rootDir, Config.defaultOutputDir);
+            targetDir = path.join(Config.rootDir, Config.defaultOutputDir);
         } else {
-            outputFilePath = outputDir;
+            targetDir = outputDir;
         }
 
         if (typeof outputFileName !== "string" || outputFileName.length === 0) {
             console.warn(
                 `An invalid file name was provided, falling back to ${Config.defaultFileName}`
             );
-            outputFilePath = path.join(outputFilePath, Config.defaultFileName);
+            targetFileName = Config.defaultFileName;
         } else {
-            outputFilePath = path.join(outputFilePath, outputFileName);
+            targetFileName = outputFileName;
         }
 
-        // TODO: fix file dirs not being created if they do not exist
+        await ensureDirExistsAsync(targetDir);
+
+        const outputFilePath: string = path.join(targetDir, targetFileName);
         fs.writeFile(outputFilePath, "KEKW", (err) => {
             if (err) {
                 throw err;
