@@ -40,7 +40,7 @@ const Config: ConfigConstructor = class Config implements ConfigInterface {
 
     static rootDir: string = path.resolve(__dirname, "../../");
     static defaultFileName: string = "data.json";
-    static defaultOutputDir: string = "dataOutput";
+    static defaultOutputDir: string = "tmp";
 
     getInputFilePath = (): string => {
         return this.inputFilePath;
