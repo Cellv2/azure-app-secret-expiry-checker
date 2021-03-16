@@ -3,8 +3,8 @@ import path from "path";
 interface ConfigConstructor {
     new (
         inputFilePath: string,
-        outputFileDir: string,
-        outputFileName: string
+        outputFileDir?: string,
+        outputFileName?: string
     ): ConfigInterface;
     rootDir: string;
     defaultFileName: string;
@@ -26,12 +26,12 @@ interface ConfigInterface {
  */
 const Config: ConfigConstructor = class Config implements ConfigInterface {
     private inputFilePath: string;
-    private outputFileDir: string;
-    private outputFileName: string;
+    private outputFileDir: string | undefined;
+    private outputFileName: string | undefined;
     constructor(
         inputFilePath: string,
-        outputFileDir: string,
-        outputFileName: string
+        outputFileDir: string | undefined,
+        outputFileName: string | undefined
     ) {
         this.inputFilePath = inputFilePath;
         this.outputFileDir = outputFileDir;
@@ -46,12 +46,14 @@ const Config: ConfigConstructor = class Config implements ConfigInterface {
         return this.inputFilePath;
     };
 
+    // returns the defaults if outputFileDir constructor param is undefined
     getOutputFileDir = (): string => {
-        return this.outputFileDir;
+        return this.outputFileDir ?? Config.defaultOutputDir;
     };
 
+    // returns the defaults if outputFileName constructor param is undefined
     getOutputFileName = (): string => {
-        return this.outputFileName;
+        return this.outputFileName ?? Config.defaultFileName;
     };
 
     getRootDir = (): string => {
