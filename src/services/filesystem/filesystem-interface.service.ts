@@ -1,12 +1,13 @@
 import fs from "fs";
 import path from "path";
 import Config from "../../config/config";
+import { ensureDirExistsForWritesAsync } from "../../utils/filesystem.utils";
 
 interface FilesystemInterfaceConstructor {
     new (): FilesystemInterfaceInterface;
 }
 
-interface FilesystemInterfaceInterface {
+export interface FilesystemInterfaceInterface {
     readDataFromFIlesystemAsync(
         inputFilePath: string
     ): Promise<string | undefined>;
@@ -16,26 +17,10 @@ interface FilesystemInterfaceInterface {
     ): Promise<void>;
 }
 
-const ensureDirExistsForWritesAsync = async (dirPathToTest: string) => {
-    try {
-        await fs.promises.access(dirPathToTest);
-        console.log("The provided path exists");
-        console.log(`Creating output at ${dirPathToTest}`);
-    } catch (err) {
-        console.warn(`Path provided does not exist!`);
-        console.warn(`Creating directory at ${dirPathToTest}`);
-        fs.mkdir(dirPathToTest, { recursive: true }, (err, path) => {
-            if (!err) {
-                console.log(`Directory successfully created at ${path}`);
-            } else {
-                console.error("Unable to create directory - exiting...");
-                throw err;
-            }
-        });
-    }
-};
-
-const FilesystemInterface: FilesystemInterfaceConstructor = class FilesystemInterface
+/**
+ * A default export with this class being instantiated is provided from this file, so this should not be needed in most cases
+ */
+export const FilesystemInterface: FilesystemInterfaceConstructor = class FilesystemInterface
     implements FilesystemInterfaceInterface {
     readDataFromFIlesystemAsync = async (
         inputFilePath: string
