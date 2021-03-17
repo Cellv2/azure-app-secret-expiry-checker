@@ -7,7 +7,9 @@ interface FilesystemInterfaceConstructor {
 }
 
 interface FilesystemInterfaceInterface {
-    readDataFromFIlesystemAsync(inputFilePath: string): Promise<void>;
+    readDataFromFIlesystemAsync(
+        inputFilePath: string
+    ): Promise<string | undefined>;
     writeDataToFilesystemAsync(
         outputDir: string,
         outputFileName: string
@@ -35,7 +37,27 @@ const ensureDirExistsForWritesAsync = async (dirPathToTest: string) => {
 
 const FilesystemInterface: FilesystemInterfaceConstructor = class FilesystemInterface
     implements FilesystemInterfaceInterface {
-    readDataFromFIlesystemAsync = async (inputFilePath: string) => {};
+    readDataFromFIlesystemAsync = async (
+        inputFilePath: string
+    ): Promise<string | undefined> => {
+        try {
+            await fs.promises.access(inputFilePath, fs.constants.F_OK);
+        } catch (err) {
+            console.error(
+                `File cannot be read at ${inputFilePath} - does the file exist?`
+            );
+            return;
+        }
+
+        try {
+            return await fs.promises.readFile(inputFilePath, "utf-8");
+        } catch (err) {
+            console.error(
+                `There was an issue reading the file at ${inputFilePath}`
+            );
+            return;
+        }
+    };
 
     // TODO: add a check whether the file exists - if yes confirm that we can overwrite it (writefile just blitzes the current file)
     // ^ fsPromises.access(path)
