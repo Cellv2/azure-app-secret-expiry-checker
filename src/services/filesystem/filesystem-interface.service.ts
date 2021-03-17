@@ -14,7 +14,7 @@ interface FilesystemInterfaceInterface {
     ): Promise<void>;
 }
 
-const ensureDirExistsAsync = async (dirPathToTest: string) => {
+const ensureDirExistsForWritesAsync = async (dirPathToTest: string) => {
     try {
         await fs.promises.access(dirPathToTest);
         console.log("The provided path exists");
@@ -63,7 +63,7 @@ const FilesystemInterface: FilesystemInterfaceConstructor = class FilesystemInte
             targetFileName = outputFileName;
         }
 
-        await ensureDirExistsAsync(targetDir);
+        await ensureDirExistsForWritesAsync(targetDir);
 
         const outputFilePath: string = path.join(targetDir, targetFileName);
         fs.writeFile(outputFilePath, "KEKW", (err) => {
