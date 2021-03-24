@@ -9,6 +9,8 @@ import { ClientConnection } from "./types/microsoft-service.types";
 import filesystemInterfaceInstance from "./services/filesystem/filesystem-interface.service";
 import Config from "./config/config";
 
+import inquirer, { QuestionCollection } from "inquirer";
+
 console.log("heya!");
 
 const main = async (): Promise<void> => {
@@ -51,4 +53,46 @@ const mainFs = () => {
 
 // main();
 
-mainFs();
+// mainFs();
+
+const inq = () => {
+    const questions: QuestionCollection<any> = [
+        {
+            type: "list",
+            name: "singleOrMultipleInput",
+            message:
+                "Do you want to check a single Azure App secret or multiple?",
+            choices: ["single", "multiple"],
+        },
+        {
+            type: "input",
+            name: "singleInputConfig",
+            message: "Input tenant ID",
+            when: function (answers) {
+                return answers.singleOrMultipleInput === "single";
+            },
+        },
+        {
+            type: "input",
+            name: "singleInputConfig",
+            message: "Input client ID",
+            when: function (answers) {
+                return answers.singleOrMultipleInput === "single";
+            },
+        },
+        {
+            type: "password",
+            name: "singleInputConfig",
+            message: "Input client secret",
+            when: function (answers) {
+                return answers.singleOrMultipleInput === "single";
+            },
+        },
+    ];
+
+    inquirer.prompt(questions).then((answers) => {
+        console.log(JSON.stringify(answers, null, 4));
+    });
+};
+
+inq();
