@@ -96,6 +96,7 @@ const inq = () => {
             choices: [
                 { name: "Use a local file", value: "localFile" },
                 { name: "Direct input as an array", value: "cliArray" },
+                { name: "FTP (NYI)", value: "ftp", disabled: true },
             ],
             when: function (answers) {
                 return answers.singleOrMultipleInput === "multiple";
@@ -114,6 +115,11 @@ const inq = () => {
             name: "multipleInputCliArray",
             message:
                 'Please input an array of objects to check [{tenantId: "", clientId: "", clientSecret: ""}] :',
+            // TODO: add validate to ensure that the input array is correct (if not array, but object is valid, can we update the answers hash?)
+            // validate: function (input) {
+
+            // },
+            // TODO: add transformer to strip out secrets
             when: function (answers) {
                 return answers.multipleInputDataLocation === "cliArray";
             },
