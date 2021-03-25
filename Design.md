@@ -10,7 +10,9 @@ CLI input options:
   - Multiple
     - How would you like to input the required information (tenant ID, client ID and client secrets)
       - Select a local file
+        - Please input a full file local path
       - Direct input as an array
+        - Please input an array of objects to check [{tenantId: \"\", clientId: \"\", clientSecret: \"\"}]
       - FTP (?)
 
 - How would you like to export the results?
