@@ -66,7 +66,7 @@ const inq = () => {
         },
         {
             type: "input",
-            name: "singleInputConfig",
+            name: "singleInputConfigTenantId",
             message: "Input tenant ID",
             when: function (answers) {
                 return answers.singleOrMultipleInput === "single";
@@ -74,7 +74,7 @@ const inq = () => {
         },
         {
             type: "input",
-            name: "singleInputConfig",
+            name: "singleInputConfigClientId",
             message: "Input client ID",
             when: function (answers) {
                 return answers.singleOrMultipleInput === "single";
@@ -82,7 +82,7 @@ const inq = () => {
         },
         {
             type: "password",
-            name: "singleInputConfig",
+            name: "singleInputConfigClientSecret",
             message: "Input client secret",
             when: function (answers) {
                 return answers.singleOrMultipleInput === "single";
