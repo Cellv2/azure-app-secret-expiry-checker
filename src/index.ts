@@ -67,7 +67,7 @@ const inq = () => {
         {
             type: "input",
             name: "singleInputConfigTenantId",
-            message: "Input tenant ID",
+            message: "Input tenant ID:",
             when: function (answers) {
                 return answers.singleOrMultipleInput === "single";
             },
@@ -75,7 +75,7 @@ const inq = () => {
         {
             type: "input",
             name: "singleInputConfigClientId",
-            message: "Input client ID",
+            message: "Input client ID:",
             when: function (answers) {
                 return answers.singleOrMultipleInput === "single";
             },
@@ -83,9 +83,39 @@ const inq = () => {
         {
             type: "password",
             name: "singleInputConfigClientSecret",
-            message: "Input client secret",
+            message: "Input client secret:",
             when: function (answers) {
                 return answers.singleOrMultipleInput === "single";
+            },
+        },
+        {
+            type: "list",
+            name: "multipleInputDataLocation",
+            message:
+                "How would you like to input the required information (tenant ID, client ID and client secrets)",
+            choices: [
+                { name: "Use a local file", value: "localFile" },
+                { name: "Direct input as an array", value: "cliArray" },
+            ],
+            when: function (answers) {
+                return answers.singleOrMultipleInput === "multiple";
+            },
+        },
+        {
+            type: "input",
+            name: "multipleInputLocalFileLocation",
+            message: "Please input a full local file path:",
+            when: function (answers) {
+                return answers.multipleInputDataLocation === "localFile";
+            },
+        },
+        {
+            type: "input",
+            name: "multipleInputCliArray",
+            message:
+                'Please input an array of objects to check [{tenantId: "", clientId: "", clientSecret: ""}] :',
+            when: function (answers) {
+                return answers.multipleInputDataLocation === "cliArray";
             },
         },
     ];
