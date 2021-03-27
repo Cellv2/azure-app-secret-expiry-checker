@@ -10,6 +10,7 @@ import filesystemInterfaceInstance from "./services/filesystem/filesystem-interf
 import Config from "./config/config";
 
 import inquirer, { QuestionCollection } from "inquirer";
+import { requiredDataKeys } from "./types/data.types";
 
 console.log("heya!");
 
@@ -56,6 +57,8 @@ const mainFs = () => {
 // mainFs();
 
 const inq = () => {
+    const validKeysSorted = Object.keys(requiredDataKeys).sort();
+
     const questions: QuestionCollection<any> = [
         {
             type: "list",
@@ -90,6 +93,18 @@ const inq = () => {
         },
         {
             type: "list",
+            name: "singleInputConfigServiceToUse",
+            message: "Select which service type to use:",
+            choices: [
+                { name: "Microsoft Graph", value: "MsGraph" },
+                { name: "Azure AD Graph", value: "AadGraph" },
+            ],
+            when: function (answers) {
+                return answers.singleOrMultipleInput === "single";
+            },
+        },
+        {
+            type: "list",
             name: "multipleInputDataLocation",
             message:
                 "How would you like to input the required information (tenant ID, client ID and client secrets)",
@@ -114,11 +129,45 @@ const inq = () => {
             type: "input",
             name: "multipleInputCliArray",
             message:
-                'Please input an array of objects to check [{tenantId: "", clientId: "", clientSecret: ""}] :',
-            // TODO: add validate to ensure that the input array is correct (if not array, but object is valid, can we update the answers hash?)
-            // validate: function (input) {
+                'Please input an array of valid JSON objects to check [{"tenantId": "", "clientId": "", "clientSecret": "", "serviceToUse": "MsGraph" | "AadGraph"}] :',
 
-            // },
+            // TODO: add validate to ensure that the input array is correct (if not array, but object is valid, can we update the answers hash?)
+            validate: function (input) {
+                try {
+                    JSON.parse(input);
+                } catch (err) {
+                    return "Please ensure that the input is *valid* JSON (e.g. all keys are quoted)";
+                }
+
+                const inputAsJson = JSON.parse(input);
+
+                if (!Array.isArray(inputAsJson)) {
+                    return "Please ensure you enter an array";
+                }
+
+                const areAllKeysValid = inputAsJson.every((item) => {
+                    const itemKeysSorted = Object.keys(item).sort();
+                    if (
+                        JSON.stringify(validKeysSorted) !==
+                        JSON.stringify(itemKeysSorted)
+                    ) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                });
+
+                if (!areAllKeysValid) {
+                    // TODO: add feedback on which keys aren't valid
+                    return `Keys do not match`;
+                }
+
+                // temp test data
+                // [{"tenantId": "", "clientId": "", "clientSecret": "", "serviceToUse": "MsGraph"}]
+                // [{"tenantId": "", "clientId": "", "clientSecret": "", "serviceToUse": "MsGraph", "qwe": "123"}]
+
+                return true;
+            },
             // TODO: add transformer to strip out secrets
             when: function (answers) {
                 return answers.multipleInputDataLocation === "cliArray";
