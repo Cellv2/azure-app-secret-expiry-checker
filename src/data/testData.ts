@@ -3,15 +3,7 @@ import {
     CLIENT_SECRET_DEV_2,
     TENANT_ID_DEV,
 } from "../config/secrets";
-
-import { AvailableMicrosoftServices } from "../types/microsoft-service.types";
-
-type Data = {
-    tenantId: string;
-    clientId: string;
-    clientSecret: string;
-    serviceToUse: AvailableMicrosoftServices;
-};
+import { Data } from "../types/data.types";
 
 export const testData: Data[] = [
     {
