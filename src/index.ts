@@ -128,8 +128,22 @@ const inq = () => {
         {
             type: "input",
             name: "multipleInputCliArray",
-            message:
-                'Please input an array of valid JSON objects to check [{"tenantId": "", "clientId": "", "clientSecret": "", "serviceToUse": "MsGraph" | "AadGraph"}] :',
+            message: [
+                "Please input an array of valid JSON objects to check. The format should be as below, with 'serviceToUse' being either MsGraph or AadGraph:",
+                `${JSON.stringify(
+                    [
+                        {
+                            tenantId: "",
+                            clientId: "",
+                            clientSecret: "",
+                            serviceToUse: "MsGraph",
+                        },
+                    ],
+                    null,
+                    4
+                )}`,
+                ""
+            ].join("\n"),
 
             // TODO: add validate to ensure that the input array is correct (if not array, but object is valid, can we update the answers hash?)
             validate: function (input) {
