@@ -13,7 +13,7 @@ interface CliAnswers extends Answers {
     multipleInputDataLocation: QuestionDataLocations;
 }
 
-export const questions: QuestionCollection<CliAnswers> = [
+export const cliQuestions: QuestionCollection<CliAnswers> = [
     {
         type: "list",
         name: "singleOrMultipleInput",

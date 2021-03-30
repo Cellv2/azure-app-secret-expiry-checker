@@ -1,17 +1,14 @@
+import inquirer from "inquirer";
+import { cliQuestions } from "./cli/questions";
+import Config from "./config/config";
 import { testData } from "./data/testData";
+import filesystemInterfaceInstance from "./services/filesystem/filesystem-interface.service";
 import AadGraphFunctions from "./services/microsoft/aad-graph.functions";
 import { AadGraphService } from "./services/microsoft/aad-graph.service";
 import { MicrosoftServiceBaseInterface } from "./services/microsoft/microsoft-service-base";
 import MsGraphFunctions from "./services/microsoft/ms-graph.functions";
 import { MsGraphService } from "./services/microsoft/ms-graph.service";
 import { ClientConnection } from "./types/microsoft-service.types";
-
-import filesystemInterfaceInstance from "./services/filesystem/filesystem-interface.service";
-import Config from "./config/config";
-
-import inquirer, { QuestionCollection } from "inquirer";
-import { requiredDataKeys } from "./types/data.types";
-import { questions } from "./cli/questions";
 
 console.log("heya!");
 
@@ -58,9 +55,7 @@ const mainFs = () => {
 // mainFs();
 
 const inq = () => {
-
-
-    inquirer.prompt(questions).then((answers) => {
+    inquirer.prompt(cliQuestions).then((answers) => {
         console.log(JSON.stringify(answers, null, 4));
     });
 };
