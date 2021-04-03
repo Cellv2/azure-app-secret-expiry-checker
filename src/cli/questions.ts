@@ -1,6 +1,7 @@
 import { QuestionCollection } from "inquirer";
 import { CliAnswers } from "../types/cli.types";
 import { requiredDataKeys } from "../types/data.types";
+import { areAllDataKeysValid } from "../utils/data.utils";
 
 const validKeysSorted = Object.keys(requiredDataKeys).sort();
 
@@ -103,19 +104,7 @@ export const cliQuestions: QuestionCollection<CliAnswers> = [
                 return "Please ensure you enter an array";
             }
 
-            const areAllKeysValid = inputAsJson.every((item) => {
-                const itemKeysSorted = Object.keys(item).sort();
-                if (
-                    JSON.stringify(validKeysSorted) !==
-                    JSON.stringify(itemKeysSorted)
-                ) {
-                    return false;
-                } else {
-                    return true;
-                }
-            });
-
-            if (!areAllKeysValid) {
+            if (!areAllDataKeysValid(inputAsJson)) {
                 // TODO: add feedback on which keys aren't valid
                 return `Keys do not match`;
             }
