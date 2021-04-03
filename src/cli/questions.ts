@@ -1,17 +1,8 @@
-import { Answers, QuestionCollection } from "inquirer";
-import { QuestionDataLocations, QuestionInputTypes } from "../types/cli.types";
-import { Data, requiredDataKeys } from "../types/data.types";
+import { QuestionCollection } from "inquirer";
+import { CliAnswers } from "../types/cli.types";
+import { requiredDataKeys } from "../types/data.types";
 
 const validKeysSorted = Object.keys(requiredDataKeys).sort();
-
-interface CliAnswers extends Answers {
-    singleOrMultipleInput: QuestionInputTypes;
-    singleInputConfigTenantId: Data["tenantId"];
-    singleInputConfigClientId: Data["clientId"];
-    singleInputConfigClientSecret: Data["clientSecret"];
-    singleInputConfigServiceToUse: Data["serviceToUse"];
-    multipleInputDataLocation: QuestionDataLocations;
-}
 
 export const cliQuestions: QuestionCollection<CliAnswers> = [
     {
