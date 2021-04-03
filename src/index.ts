@@ -8,6 +8,7 @@ import { AadGraphService } from "./services/microsoft/aad-graph.service";
 import { MicrosoftServiceBaseInterface } from "./services/microsoft/microsoft-service-base";
 import MsGraphFunctions from "./services/microsoft/ms-graph.functions";
 import { MsGraphService } from "./services/microsoft/ms-graph.service";
+import { CliAnswers } from "./types/cli.types";
 import { ClientConnection } from "./types/microsoft-service.types";
 
 console.log("heya!");
@@ -55,7 +56,7 @@ const mainFs = () => {
 // mainFs();
 
 const inq = () => {
-    inquirer.prompt(cliQuestions).then((answers) => {
+    inquirer.prompt(cliQuestions).then((answers: CliAnswers) => {
         console.log(JSON.stringify(answers, null, 4));
     });
 };
