@@ -14,7 +14,7 @@ namespace MsGraphFunctions {
         service: MsGraphServiceInterface,
         connection: ClientConnection,
         applicationId: string
-    ) => {
+    ): Promise<MicrosoftGraph.PasswordCredential[] | undefined> => {
         try {
             const response = await service.request(
                 connection,

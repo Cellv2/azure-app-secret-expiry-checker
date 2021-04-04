@@ -14,7 +14,7 @@ namespace AadGraphFunctions {
         service: AadGraphServiceInterface,
         connection: ClientConnection,
         applicationId: string
-    ) => {
+    ): Promise<AzureAdGraphModels.PasswordCredential[] | undefined> => {
         try {
             const response = await service.request(
                 connection,
