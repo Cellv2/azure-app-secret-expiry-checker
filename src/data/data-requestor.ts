@@ -11,7 +11,7 @@ interface DataRequestorConstructor {
 }
 
 interface DataRequestorInterface {
-    requestSecretsForAll: (data: Data[]) => RetrievedSecretData[];
+    requestSecretsForAllApps: (data: Data[]) => RetrievedSecretData[];
 }
 
 const DataRequestor: DataRequestorConstructor = class DataRequestor
@@ -19,7 +19,7 @@ const DataRequestor: DataRequestorConstructor = class DataRequestor
     private msGraphServiceInstance = new MsGraphService();
     private aadGraphServiceInstance = new AadGraphService();
 
-    requestSecretsForAll = (data: Data[]): RetrievedSecretData[] => {
+    requestSecretsForAllApps = (data: Data[]): RetrievedSecretData[] => {
         let retrievedSecrets: RetrievedSecretData[] = [];
 
         data.forEach(async (item) => {
