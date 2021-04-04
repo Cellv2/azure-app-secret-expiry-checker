@@ -36,18 +36,19 @@ export const askQuestions = (): void => {
 
                 if (answers.multipleInputDataLocation === "localFile") {
                     // data validity should have already been checked at the time of input
-                    const data = await filesystemInterfaceInstance.readDataFromFIlesystemAsync(
+                    const fileData = await filesystemInterfaceInstance.readDataFromFIlesystemAsync(
                         answers.multipleInputLocalFileLocation
                     );
 
-                    if (!data) {
-                        console.error("Data does not exist!");
+                    if (!fileData) {
+                        console.error(
+                            "The file returned no usable data - please ensure the file exists and is valid!"
+                        );
                         return;
                     }
 
                     // TODO: might want to type guard this
-                    store = new DataStore(JSON.parse(data));
-                    // store = new DataStore(data);
+                    store = new DataStore(JSON.parse(fileData));
                 }
             }
         })
