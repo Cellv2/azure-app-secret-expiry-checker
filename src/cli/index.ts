@@ -51,9 +51,16 @@ export const askQuestions = (): void => {
                 }
             }
         })
-        .then(() => {
-            dataRequestorInstance.requestSecretsForAllApps(
+        .then(async () => {
+            const allSecrets = await dataRequestorInstance.requestSecretsForAllApps(
                 store.getDataObjectsToCheck()
             );
+
+            console.log("---------------------");
+            console.log("secrets are added below");
+            console.log("---------------------");
+            store.bulkAddSecretsToStore(allSecrets);
+
+            console.log(store.getRetrievedEndpointData());
         });
 };

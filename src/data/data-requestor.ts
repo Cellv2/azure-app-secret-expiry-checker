@@ -11,7 +11,7 @@ interface DataRequestorConstructor {
 }
 
 interface DataRequestorInterface {
-    requestSecretsForAllApps: (data: Data[]) => RetrievedSecretData[];
+    requestSecretsForAllApps: (data: Data[]) => Promise<RetrievedSecretData[]>;
 }
 
 const DataRequestor: DataRequestorConstructor = class DataRequestor
@@ -19,45 +19,49 @@ const DataRequestor: DataRequestorConstructor = class DataRequestor
     private msGraphServiceInstance = new MsGraphService();
     private aadGraphServiceInstance = new AadGraphService();
 
-    requestSecretsForAllApps = (data: Data[]): RetrievedSecretData[] => {
+    requestSecretsForAllApps = async (
+        data: Data[]
+    ): Promise<RetrievedSecretData[]> => {
         let retrievedSecrets: RetrievedSecretData[] = [];
 
-        data.forEach(async (item) => {
-            const { clientId, clientSecret, tenantId, serviceToUse } = item;
+        await Promise.all(
+            data.map(async (item) => {
+                const { clientId, clientSecret, tenantId, serviceToUse } = item;
 
-            const clientConnection: ClientConnection = {
-                clientId,
-                clientSecret,
-                tenantId,
-            };
+                const clientConnection: ClientConnection = {
+                    clientId,
+                    clientSecret,
+                    tenantId,
+                };
 
-            let secretFromService: RetrievedSecretData["data"];
-            if (serviceToUse === "MsGraph") {
-                secretFromService = await MsGraphFunctions.getSecretsForMsGraphApplicationsByAppId(
-                    this.msGraphServiceInstance,
-                    clientConnection,
-                    clientId
-                );
-            }
-            if (serviceToUse === "AadGraph") {
-                secretFromService = await AadGraphFunctions.getSecretsForAadGraphApplicationsByAppId(
-                    this.aadGraphServiceInstance,
-                    clientConnection,
-                    clientId
-                );
-            }
+                let secretFromService: RetrievedSecretData["data"];
+                if (serviceToUse === "MsGraph") {
+                    secretFromService = await MsGraphFunctions.getSecretsForMsGraphApplicationsByAppId(
+                        this.msGraphServiceInstance,
+                        clientConnection,
+                        clientId
+                    );
+                }
+                if (serviceToUse === "AadGraph") {
+                    secretFromService = await AadGraphFunctions.getSecretsForAadGraphApplicationsByAppId(
+                        this.aadGraphServiceInstance,
+                        clientConnection,
+                        clientId
+                    );
+                }
 
-            if (!secretFromService) {
-                console.warn(
-                    `Secrets not successfully retrieved from client ID ${clientId}`
-                );
-            }
+                if (!secretFromService) {
+                    console.warn(
+                        `Secrets not successfully retrieved from client ID ${clientId}`
+                    );
+                }
 
-            retrievedSecrets.push({
-                endpointUsed: serviceToUse,
-                data: secretFromService,
-            });
-        });
+                retrievedSecrets.push({
+                    endpointUsed: serviceToUse,
+                    data: secretFromService,
+                });
+            })
+        );
 
         return retrievedSecrets;
     };
