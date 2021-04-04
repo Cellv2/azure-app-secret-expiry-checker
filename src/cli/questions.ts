@@ -1,9 +1,10 @@
 import { QuestionCollection } from "inquirer";
 import { CliAnswers } from "../types/cli.types";
-import { requiredDataKeys } from "../types/data.types";
 import { areAllDataKeysValid } from "../utils/data.utils";
-
-const validKeysSorted = Object.keys(requiredDataKeys).sort();
+import {
+    checkFileExistsForRead,
+    checkFileHasValidData,
+} from "../utils/filesystem.utils";
 
 export const cliQuestions: QuestionCollection<CliAnswers> = [
     {
@@ -66,6 +67,25 @@ export const cliQuestions: QuestionCollection<CliAnswers> = [
         type: "input",
         name: "multipleInputLocalFileLocation",
         message: "Please input a full local file path:",
+        validate: (input) => {
+            console.log(
+                `Checking the provided path exists and is accessible...`
+            );
+
+            const doesFileExist = checkFileExistsForRead(input);
+            if (!doesFileExist) {
+                console.error("The path provided does not exist!");
+                return false;
+            }
+
+            if (!checkFileHasValidData(input)) {
+                console.error("Please ensure the data has valid data");
+                return false;
+            }
+
+            console.log("Path exists and the data is valid, continuing...");
+            return true;
+        },
         when: function (answers) {
             return answers.multipleInputDataLocation === "localFile";
         },

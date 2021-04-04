@@ -9,6 +9,7 @@ export interface CliAnswers extends Answers {
     singleInputConfigServiceToUse: Data["serviceToUse"];
     multipleInputDataLocation: QuestionDataLocations;
     multipleInputCliArray: Data[];
+    multipleInputLocalFileLocation: string; // note this is the *path*, not the data set in the file itself
 }
 export type QuestionDataLocations = "localFile" | "cliArray" | "ftp";
 export type QuestionInputTypes = "single" | "multiple";

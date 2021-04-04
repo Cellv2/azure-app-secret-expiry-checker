@@ -18,7 +18,7 @@ export interface FilesystemInterfaceInterface {
 }
 
 /**
- * A default export with this class being instantiated is provided from this file, so this should not be needed in most cases
+ * A default export with this class being instantiated is provided from this file, so instantiation should not be needed in most cases
  */
 export const FilesystemInterface: FilesystemInterfaceConstructor = class FilesystemInterface
     implements FilesystemInterfaceInterface {

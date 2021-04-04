@@ -1,6 +1,7 @@
 import inquirer from "inquirer";
 import dataRequestorInstance from "../data/data-requestor";
 import DataStore, { DataStoreInterface } from "../data/data-store";
+import filesystemInterfaceInstance from "../services/filesystem/filesystem-interface.service";
 import { CliAnswers } from "../types/cli.types";
 import { Data } from "../types/data.types";
 import { cliQuestions } from "./questions";
@@ -10,7 +11,7 @@ export const askQuestions = (): void => {
     let store: DataStoreInterface;
     inquirer
         .prompt(cliQuestions)
-        .then((answers: CliAnswers) => {
+        .then(async (answers: CliAnswers) => {
             console.log(JSON.stringify(answers, null, 4));
             if (answers.singleOrMultipleInput === "single") {
                 const dataObj: Data = {
@@ -27,16 +28,27 @@ export const askQuestions = (): void => {
                 if (answers.multipleInputDataLocation === "cliArray") {
                     store = new DataStore(answers.multipleInputCliArray);
                 }
-            }
 
-            // TODO: imeplement this
-            if (answers.multipleInputDataLocation === "ftp") {
-                console.log("NYI");
-            }
+                // TODO: imeplement this
+                if (answers.multipleInputDataLocation === "ftp") {
+                    console.log("NYI");
+                }
 
-            // TODO: imeplement this
-            if (answers.multipleInputDataLocation === "localFile") {
-                console.log("NYI");
+                if (answers.multipleInputDataLocation === "localFile") {
+                    // data validity should have already been checked at the time of input
+                    const data = await filesystemInterfaceInstance.readDataFromFIlesystemAsync(
+                        answers.multipleInputLocalFileLocation
+                    );
+
+                    if (!data) {
+                        console.error("Data does not exist!");
+                        return;
+                    }
+
+                    // TODO: might want to type guard this
+                    store = new DataStore(JSON.parse(data));
+                    // store = new DataStore(data);
+                }
             }
         })
         .then(() => {
