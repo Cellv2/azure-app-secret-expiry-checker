@@ -6,11 +6,19 @@ const validKeysSorted = Object.keys(requiredDataKeys).sort();
 export const areAllDataKeysValid = (inputAsJson: any[]): boolean =>
     inputAsJson.every((item: any[]) => {
         const itemKeysSorted = Object.keys(item).sort();
+
         if (
             JSON.stringify(validKeysSorted) !== JSON.stringify(itemKeysSorted)
         ) {
             return false;
-        } else {
-            return true;
         }
+
+        const doesObjContainNonStringValue = Object.values(item).some(
+            (val) => typeof val !== "string"
+        );
+        if (doesObjContainNonStringValue) {
+            return false;
+        }
+
+        return true;
     });
