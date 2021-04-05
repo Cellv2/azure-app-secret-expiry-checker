@@ -4,5 +4,6 @@ import { ensureDirExistsForWritesAsync } from '../filesystem.utils'
 describe("utils - ensureDirExistsForWritesAsync", () => {
     const mockedFunction = mocked(ensureDirExistsForWritesAsync);
 
-    // it("")
+    // TODO: write tests
+    xit("", () => {})
 })
