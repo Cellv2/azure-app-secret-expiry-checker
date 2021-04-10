@@ -45,7 +45,8 @@ export const createDirIfNotExistsAsync = async (
     }
 
     try {
-        await fs.promises.mkdir(dirPathToCreate);
+        await fs.promises.mkdir(dirPathToCreate, { recursive: true });
+        await fs.promises.access(dirPathToCreate); // the dir should exist at this point, but just to be sure
     } catch (err) {
         throw new Error(`Unable to create directory at ${dirPathToCreate}`);
     }
