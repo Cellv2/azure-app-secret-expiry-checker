@@ -1,14 +1,13 @@
 import fs from "fs";
+import { nanoid } from "nanoid";
 import path from "path";
+import rimraf from "rimraf";
 import { mocked } from "ts-jest/utils";
 import {
     checkFileExistsForRead,
-    ensureDirExistsForWritesAsync,
-    doesDirExistsForWritesAsync,
     createDirIfNotExistsAsync,
+    doesDirExistsForWritesAsync,
 } from "../filesystem.utils";
-import { nanoid } from "nanoid";
-import rimraf from "rimraf";
 
 const TEST_DIR_ROOT = path.resolve(__dirname, "./__tempTestDir");
 
@@ -32,30 +31,6 @@ describe("utils - checkFileExistsForRead", () => {
 
     it("returns false for a missing file", () => {
         expect(mockedFunction(invalidFixtureFile)).toBeFalsy();
-    });
-});
-
-xdescribe("utils - ensureDirExistsForWritesAsync", () => {
-    afterAll(() => {
-        // TODO: uncomment this when #3 is fixed
-        // TODO: also make sure this isn't eating other files (I think it deleted filesystem-test-data.json ?)
-        // rimraf(`${fixtureDir}/*`, (err) => console.error(err));
-    });
-
-    const mockedFunction = mocked(ensureDirExistsForWritesAsync);
-
-    it("does not error for an existing path", async () => {
-        await expect(mockedFunction(fixtureDir)).resolves.not.toThrow();
-    });
-
-    xit("creates the dir if it does not exist", async () => {
-        await expect(mockedFunction(newFixtureDir)).resolves.not.toThrow();
-        expect(fs.existsSync(newFixtureDir)).toBeTruthy();
-    });
-
-    it("errors with invalid dir", () => {
-        // //@ts-expect-error - testing to ensure the catches work
-        // await expect(mockedFunction(1)).rejects.toThrow();
     });
 });
 
@@ -143,6 +118,7 @@ describe("utils - createDirIfNotExistsAsync", () => {
         const errorString = `Unable to create directory at ${invalidDirPath}`;
 
         expect.assertions(1);
+
         await expect(mockedFunction(invalidDirPath)).rejects.toThrowError(
             errorString
         );

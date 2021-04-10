@@ -1,7 +1,10 @@
 import fs from "fs";
 import path from "path";
 import Config from "../../config/config";
-import { ensureDirExistsForWritesAsync } from "../../utils/filesystem.utils";
+import {
+    createDirIfNotExistsAsync,
+    doesDirExistsForWritesAsync,
+} from "../../utils/filesystem.utils";
 
 interface FilesystemInterfaceConstructor {
     new (): FilesystemInterfaceInterface;
@@ -70,7 +73,18 @@ export const FilesystemInterface: FilesystemInterfaceConstructor = class Filesys
             targetFileName = outputFileName;
         }
 
-        await ensureDirExistsForWritesAsync(targetDir);
+        const doesDirExist = await doesDirExistsForWritesAsync(targetDir);
+        if (!doesDirExist) {
+            try {
+                console.warn(
+                    `Directory at ${targetDir} does not exist, creating...`
+                );
+                await createDirIfNotExistsAsync(targetDir);
+                console.log(`${targetDir} created!`);
+            } catch (err) {
+                console.error(err);
+            }
+        }
 
         const outputFilePath: string = path.join(targetDir, targetFileName);
         fs.writeFile(outputFilePath, "KEKW", (err) => {
