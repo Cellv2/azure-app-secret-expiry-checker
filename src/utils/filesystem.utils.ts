@@ -41,37 +41,39 @@ export const checkFileExistsForRead = (pathToCheck: string): boolean => {
     return true;
 };
 
-export const checkFileHasValidData = (pathToCheck: string): boolean => {
+export const checkFileHasValidData = async (
+    pathToCheck: string
+): Promise<void> => {
     try {
-        const file = fs.readFileSync(pathToCheck, "utf-8");
+        const file = await fs.promises.readFile(pathToCheck, "utf-8");
 
         try {
             JSON.parse(file);
         } catch (err) {
-            console.error(
-                "Please ensure that the input is *valid* JSON (e.g. all keys are quoted)"
+            return Promise.reject(
+                new Error(
+                    "Please ensure that the input is *valid* JSON (e.g. all keys are quoted)"
+                )
             );
-            return false;
         }
 
         const inputAsJson = JSON.parse(file);
 
         if (!Array.isArray(inputAsJson)) {
-            console.error("Please ensure the file contains an array of data");
-            return false;
+            return Promise.reject(
+                new Error("Please ensure the file contains an array of data")
+            );
         }
 
         if (!areAllDataKeysValid(inputAsJson)) {
             // TODO: add feedback on which keys aren't valid
-            console.error(`Keys do not match`);
-            return false;
+            return Promise.reject(new Error("Keys do not match"));
         }
 
-        return true;
+        return Promise.resolve();
     } catch (err) {
-        console.error(
+        throw new Error(
             `Something went wrong when reading file at ${pathToCheck}`
         );
-        return false;
     }
 };

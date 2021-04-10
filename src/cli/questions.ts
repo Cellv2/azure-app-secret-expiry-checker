@@ -67,7 +67,7 @@ export const cliQuestions: QuestionCollection<CliAnswers> = [
         type: "input",
         name: "multipleInputLocalFileLocation",
         message: "Please input a full local file path:",
-        validate: (input) => {
+        validate: async (input) => {
             console.log(
                 `Checking the provided path exists and is accessible...`
             );
@@ -78,8 +78,10 @@ export const cliQuestions: QuestionCollection<CliAnswers> = [
                 return false;
             }
 
-            if (!checkFileHasValidData(input)) {
-                console.error("Please ensure the data has valid data");
+            try {
+                await checkFileHasValidData(input);
+            } catch (err) {
+                console.error(err.message);
                 return false;
             }
 
