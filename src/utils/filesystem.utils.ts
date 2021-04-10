@@ -1,22 +1,24 @@
 import fs from "fs";
 import { areAllDataKeysValid } from "./data.utils";
 
+// TODO: should this be split out into different functions / the functionality separated cleanly? it just force creates the dir
+// TODO: e.g. checkDirExists with a 'should create' param
 export const ensureDirExistsForWritesAsync = async (dirPathToTest: string) => {
     try {
         await fs.promises.access(dirPathToTest);
         console.log("The provided path exists");
         console.log(`Creating output at ${dirPathToTest}`);
     } catch (err) {
-        console.warn(`Path provided does not exist!`);
-        console.warn(`Creating directory at ${dirPathToTest}`);
-        fs.mkdir(dirPathToTest, { recursive: true }, (err, path) => {
-            if (!err) {
-                console.log(`Directory successfully created at ${path}`);
-            } else {
-                console.error("Unable to create directory - exiting...");
-                throw err;
-            }
-        });
+        console.log(`Path provided does not exist!`);
+        console.log(`Creating directory at ${dirPathToTest}`);
+
+        try {
+            await fs.promises.mkdir(dirPathToTest);
+            console.log(`Directory successfully created at ${dirPathToTest}`);
+        } catch (err) {
+            console.error("Unable to create directory - exiting...");
+            throw err;
+        }
     }
 };
 
