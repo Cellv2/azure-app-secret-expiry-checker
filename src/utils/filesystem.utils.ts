@@ -22,6 +22,35 @@ export const ensureDirExistsForWritesAsync = async (dirPathToTest: string) => {
     }
 };
 
+export const doesDirExistsForWritesAsync = async (
+    dirPathToTest: string
+): Promise<boolean> => {
+    try {
+        await fs.promises.access(dirPathToTest);
+        return true;
+    } catch (err) {
+        return false;
+    }
+};
+
+/**
+ * Creates a directory if it does not already exist
+ * @param {string} dirPathToCreate The full path to create
+ */
+export const createDirIfNotExistsAsync = async (
+    dirPathToCreate: string
+): Promise<void> => {
+    if (await doesDirExistsForWritesAsync(dirPathToCreate)) {
+        return;
+    }
+
+    try {
+        await fs.promises.mkdir(dirPathToCreate);
+    } catch (err) {
+        throw new Error(`Unable to create directory at ${dirPathToCreate}`);
+    }
+};
+
 export const checkFileExistsForRead = (pathToCheck: string): boolean => {
     try {
         fs.accessSync(pathToCheck);
