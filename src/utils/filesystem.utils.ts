@@ -33,7 +33,7 @@ export const createDirIfNotExistsAsync = async (
 
 export const checkFileExistsForRead = (pathToCheck: string): boolean => {
     try {
-        fs.accessSync(pathToCheck);
+        fs.accessSync(pathToCheck, fs.constants.F_OK);
     } catch (err) {
         return false;
     }
