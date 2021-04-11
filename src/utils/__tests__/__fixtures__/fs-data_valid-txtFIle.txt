@@ -1,0 +1,14 @@
+[
+    {
+        "tenantId": "",
+        "clientId": "",
+        "clientSecret": "",
+        "serviceToUse": "MsGraph"
+    },
+    {
+        "tenantId": "",
+        "clientId": "",
+        "clientSecret": "",
+        "serviceToUse": "MsGraph"
+    }
+]
