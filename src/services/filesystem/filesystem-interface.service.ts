@@ -2,8 +2,9 @@ import fs from "fs";
 import path from "path";
 import Config from "../../config/config";
 import {
+    checkFileExistsForRead,
     createDirIfNotExistsAsync,
-    doesDirExistsForWritesAsync,
+    doesDirExistsForWritesAsync
 } from "../../utils/filesystem.utils";
 
 interface FilesystemInterfaceConstructor {
@@ -11,9 +12,17 @@ interface FilesystemInterfaceConstructor {
 }
 
 export interface FilesystemInterfaceInterface {
-    readDataFromFIlesystemAsync(
-        inputFilePath: string
-    ): Promise<string | undefined>;
+    /**
+     * If resolves, it returns the contets of the file in utf-8 encoding
+     * If rejects, returns a relevant error
+     *
+     * Checks:
+     * - The file exists and the underlying process has access to it
+     * - The size of the file is not 0 (i.e. it has some kind of data in it)
+     * @param {string} inputFilePath The path to the file which should be read and returned
+     * @returns A string with the contents of the file
+     */
+    readDataFromFilesystemAsync(inputFilePath: string): Promise<string>;
     writeDataToFilesystemAsync(
         outputDir: string,
         outputFileName: string
@@ -25,25 +34,36 @@ export interface FilesystemInterfaceInterface {
  */
 export const FilesystemInterface: FilesystemInterfaceConstructor = class FilesystemInterface
     implements FilesystemInterfaceInterface {
-    readDataFromFIlesystemAsync = async (
+    readDataFromFilesystemAsync = async (
         inputFilePath: string
-    ): Promise<string | undefined> => {
-        try {
-            await fs.promises.access(inputFilePath, fs.constants.F_OK);
-        } catch (err) {
-            console.error(
-                `File cannot be read at ${inputFilePath} - does the file exist?`
+    ): Promise<string> => {
+        if (!checkFileExistsForRead(inputFilePath)) {
+            return Promise.reject(
+                new Error(
+                    `File cannot be read at ${inputFilePath} - does the file exist?`
+                )
             );
-            return;
         }
 
         try {
-            return await fs.promises.readFile(inputFilePath, "utf-8");
-        } catch (err) {
-            console.error(
-                `There was an issue reading the file at ${inputFilePath}`
+            const fileContents = await fs.promises.readFile(
+                inputFilePath,
+                "utf-8"
             );
-            return;
+
+            if (!fileContents.length) {
+                return Promise.reject(
+                    new Error(`The file at ${inputFilePath} was empty`)
+                );
+            }
+
+            return fileContents;
+        } catch (err) {
+            return Promise.reject(
+                new Error(
+                    `There was an issue reading the file at ${inputFilePath}`
+                )
+            );
         }
     };
 

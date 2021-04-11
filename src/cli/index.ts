@@ -35,20 +35,16 @@ export const askQuestions = (): void => {
                 }
 
                 if (answers.multipleInputDataLocation === "localFile") {
-                    // data validity should have already been checked at the time of input
-                    const fileData = await filesystemInterfaceInstance.readDataFromFIlesystemAsync(
-                        answers.multipleInputLocalFileLocation
-                    );
-
-                    if (!fileData) {
-                        console.error(
-                            "The file returned no usable data - please ensure the file exists and is valid!"
+                    try {
+                        const fileData = await filesystemInterfaceInstance.readDataFromFilesystemAsync(
+                            answers.multipleInputLocalFileLocation
                         );
+
+                        store = new DataStore(JSON.parse(fileData));
+                    } catch (err) {
+                        console.error(err);
                         return;
                     }
-
-                    // TODO: might want to type guard this
-                    store = new DataStore(JSON.parse(fileData));
                 }
             }
         })
