@@ -1,4 +1,5 @@
 import fs from "fs";
+import mockFs from "mock-fs";
 import { nanoid } from "nanoid";
 import path from "path";
 import rimraf from "rimraf";
@@ -37,22 +38,35 @@ const fixurePath_invalidNotValidJson = path.resolve(
     "./__fixtures__/fs-data_invalid-notValidJson.json"
 );
 
-describe("utils - checkFileExistsForRead", () => {
-    const mockedFunction = mocked(checkFileExistsForRead);
-
-    it("returns true for an existing file", () => {
-        expect(mockedFunction(fixurePath_valid)).toBeTruthy();
+describe("filesystem utils", () => {
+    beforeEach(() => {
+        mockFs({
+            "checkFileExistsForRead/dir": {
+                "valid.json": "content",
+            },
+        });
     });
 
-    it("returns false for a missing file", () => {
-        const DIR_ID = nanoid(10);
-        const invalidFilePath = path.resolve(
-            TEST_DIR_ROOT,
-            DIR_ID,
-            `${nanoid(5)}.json`
-        );
+    afterEach(() => {
+        mockFs.restore();
+    });
 
-        expect(mockedFunction(invalidFilePath)).toBeFalsy();
+    describe("utils - checkFileExistsForRead", () => {
+        const mockedFunction = mocked(checkFileExistsForRead);
+
+        it("returns true for an existing file", () => {
+            expect.assertions(1);
+
+            const testPath = "checkFileExistsForRead/dir/valid.json";
+            expect(mockedFunction(testPath)).toBeTruthy();
+        });
+
+        it("returns false for a missing file", () => {
+            expect.assertions(1);
+
+            const testPath = `checkFileExistsForRead/dir/${nanoid(10)}.json`;
+            expect(mockedFunction(testPath)).toBeFalsy();
+        });
     });
 });
 
