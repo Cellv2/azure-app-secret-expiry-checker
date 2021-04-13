@@ -44,6 +44,12 @@ describe("filesystem utils", () => {
             "checkFileExistsForRead/dir": {
                 "valid.json": "content",
             },
+            "doesDirExistsForWritesAsync/dir/empty": {
+                /** empty dir */
+            },
+            "createDirIfNotExistsAsync/dir": {
+                /** empty but tests get written into it */
+            },
         });
     });
 
@@ -51,7 +57,7 @@ describe("filesystem utils", () => {
         mockFs.restore();
     });
 
-    describe("utils - checkFileExistsForRead", () => {
+    describe("checkFileExistsForRead", () => {
         const mockedFunction = mocked(checkFileExistsForRead);
 
         it("returns true for an existing file", () => {
@@ -68,101 +74,66 @@ describe("filesystem utils", () => {
             expect(mockedFunction(testPath)).toBeFalsy();
         });
     });
-});
 
-describe("utils - doesDirExistsForWritesAsync", () => {
-    const mockedFunction = mocked(doesDirExistsForWritesAsync);
+    describe("doesDirExistsForWritesAsync", () => {
+        const mockedFunction = mocked(doesDirExistsForWritesAsync);
 
-    it("returns true for an existing directory", async () => {
-        expect.assertions(1);
+        it("returns true for an existing directory", async () => {
+            expect.assertions(1);
 
-        await expect(mockedFunction(TEST_DIR_ROOT)).resolves.toBeTruthy();
+            const testPath = "doesDirExistsForWritesAsync/dir/empty";
+            await expect(mockedFunction(testPath)).resolves.toBeTruthy();
+        });
+
+        it("returns false for a missing directory", async () => {
+            expect.assertions(1);
+
+            const testPath = `doesDirExistsForWritesAsync/dir/${nanoid(10)}`;
+            await expect(mockedFunction(testPath)).resolves.toBeFalsy();
+        });
     });
 
-    it("returns false for a missing directory", async () => {
-        const DIR_ID = nanoid(10);
-        const invalidFilePath = path.resolve(TEST_DIR_ROOT, DIR_ID);
+    describe("createDirIfNotExistsAsync", () => {
+        const mockedFunction = mocked(createDirIfNotExistsAsync);
 
-        expect.assertions(1);
+        it("creates the dir if the path is valid", async () => {
+            expect.assertions(2);
 
-        await expect(mockedFunction(invalidFilePath)).resolves.toBeFalsy();
-    });
-});
+            const testPath = `createDirIfNotExistsAsync/dir/${nanoid(10)}`;
+            await expect(mockedFunction(testPath)).resolves.not.toThrow();
+            await expect(fs.promises.access(testPath)).resolves.not.toThrow();
+        });
 
-describe("utils - createDirIfNotExistsAsync", () => {
-    // *****
-    // * This test suite seems to cause some EPERM exceptions on Windows from time to time
-    // TODO: Look into why this is happening
-    // *****
+        it("does not throw if dir already exists", async () => {
+            expect.assertions(1);
 
-    beforeAll(() => {
-        if (!fs.existsSync(TEST_DIR_ROOT)) {
-            fs.mkdirSync(TEST_DIR_ROOT);
-        } else {
-            rimraf.sync(`${TEST_DIR_ROOT}/*`);
-        }
-    });
+            const testPath = `createDirIfNotExistsAsync/dir/${nanoid(10)}`;
+            await fs.promises.mkdir(testPath);
+            await expect(mockedFunction(testPath)).resolves.not.toThrow();
+        });
 
-    afterAll(() => {
-        if (fs.existsSync(TEST_DIR_ROOT)) {
-            // intentionally not removing the entire folder, because if we delete the whole folder we seem to get EPERM issues far more frequently
-            rimraf.sync(`${TEST_DIR_ROOT}/*`);
-        }
-    });
+        it("handles recursive path creation", async () => {
+            expect.assertions(3);
 
-    const mockedFunction = mocked(createDirIfNotExistsAsync);
+            const testPath = `createDirIfNotExistsAsync/dir/${nanoid(
+                10
+            )}/subfolder/${nanoid(10)}`;
 
-    it("creates the dir if the path is valid", async () => {
-        const DIR_ID = nanoid(10);
-        const testDir = path.resolve(TEST_DIR_ROOT, DIR_ID);
+            await expect(fs.promises.access(testPath)).rejects.toThrow();
+            await expect(mockedFunction(testPath)).resolves.not.toThrow();
+            await expect(fs.promises.access(testPath)).resolves.not.toThrow();
+        });
 
-        expect.assertions(2);
+        it("throws when an invalid path is provided", async () => {
+            expect.assertions(1);
 
-        await expect(mockedFunction(testDir)).resolves.not.toThrow();
-        await expect(fs.promises.access(testDir)).resolves.not.toThrow();
-    });
-
-    it("does not throw if dir already exists", async () => {
-        const DIR_ID = nanoid(10);
-        const testDir = path.resolve(TEST_DIR_ROOT, DIR_ID);
-
-        expect.assertions(1);
-
-        await fs.promises.mkdir(testDir);
-        await expect(mockedFunction(testDir)).resolves.not.toThrow();
-    });
-
-    it("handles recursive path creation", async () => {
-        const DIR_ID = nanoid(10);
-        const recursiveDirPath = path.resolve(
-            TEST_DIR_ROOT,
-            "./subfolder/",
-            DIR_ID
-        );
-
-        expect.assertions(3);
-
-        await expect(fs.promises.access(recursiveDirPath)).rejects.toThrow();
-        await expect(mockedFunction(recursiveDirPath)).resolves.not.toThrow();
-        await expect(
-            fs.promises.access(recursiveDirPath)
-        ).resolves.not.toThrow();
-    });
-
-    it("throws when an invalid path is provided", async () => {
-        // node does not allow us to explicitly use octal escape sequences directly, so we split it up
-        const partialInvalidDirPath = path.resolve(
-            TEST_DIR_ROOT,
-            "./subfolder/"
-        );
-        const invalidDirPath = `${partialInvalidDirPath}\000`;
-        const errorString = `Unable to create directory at ${invalidDirPath}`;
-
-        expect.assertions(1);
-
-        await expect(mockedFunction(invalidDirPath)).rejects.toThrowError(
-            errorString
-        );
+            // octal escape sequences aren't supported and will cause errors on dir/file creation
+            const testPath = `createDirIfNotExistsAsync/dir/octal\000`;
+            const errorString = `Unable to create directory at ${testPath}`;
+            await expect(mockedFunction(testPath)).rejects.toThrowError(
+                errorString
+            );
+        });
     });
 });
 
