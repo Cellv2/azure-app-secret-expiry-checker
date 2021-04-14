@@ -2,7 +2,6 @@ import fs from "fs";
 import mockFs from "mock-fs";
 import { nanoid } from "nanoid";
 import path from "path";
-import rimraf from "rimraf";
 import { mocked } from "ts-jest/utils";
 import {
     checkFileExistsForRead,
@@ -10,8 +9,6 @@ import {
     createDirIfNotExistsAsync,
     doesDirExistsForWritesAsync,
 } from "../filesystem.utils";
-
-const TEST_DIR_ROOT = path.resolve(__dirname, "./__tempTestDir");
 
 const fixurePath_valid = path.resolve(
     __dirname,
@@ -49,6 +46,16 @@ describe("filesystem utils", () => {
             },
             "createDirIfNotExistsAsync/dir": {
                 /** empty but tests get written into it */
+            },
+            "checkFileHasValidData/dir": {
+                valid: mockFs.load(fixurePath_valid),
+                valid2: mockFs.load(fixurePath_valid2),
+                validAsTxt: mockFs.load(fixurePath_validAsTxt),
+                invalidKeys: mockFs.load(fixurePath_invalidKeys),
+                invalidNotArr: mockFs.load(fixurePath_invalidNotArr),
+                invalidNotValidJson: mockFs.load(
+                    fixurePath_invalidNotValidJson
+                ),
             },
         });
     });
@@ -135,70 +142,71 @@ describe("filesystem utils", () => {
             );
         });
     });
-});
 
-describe("utils - checkFileHasValidData", () => {
-    const mockedFunction = mocked(checkFileHasValidData);
+    describe("checkFileHasValidData", () => {
+        const mockedFunction = mocked(checkFileHasValidData);
 
-    it("resolves if the data in the file is valid", async () => {
-        expect.assertions(3);
+        it("resolves if the data in the file is valid", async () => {
+            expect.assertions(3);
 
-        await expect(mockedFunction(fixurePath_valid)).resolves.not.toThrow();
-        await expect(mockedFunction(fixurePath_valid2)).resolves.not.toThrow();
-        await expect(
-            mockedFunction(fixurePath_validAsTxt)
-        ).resolves.not.toThrow();
-    });
+            const valid = `checkFileHasValidData/dir/valid`;
+            const valid2 = `checkFileHasValidData/dir/valid2`;
+            const validAsTxt = `checkFileHasValidData/dir/validAsTxt`;
 
-    it("throws if data in the file is invalid", async () => {
-        expect.assertions(3);
+            await expect(mockedFunction(valid)).resolves.not.toThrow();
+            await expect(mockedFunction(valid2)).resolves.not.toThrow();
+            await expect(mockedFunction(validAsTxt)).resolves.not.toThrow();
+        });
 
-        await expect(
-            mockedFunction(fixurePath_invalidKeys)
-        ).rejects.toThrowError("Keys do not match");
-        await expect(
-            mockedFunction(fixurePath_invalidNotArr)
-        ).rejects.toThrowError(
-            "Please ensure the file contains an array of data"
-        );
-        await expect(
-            mockedFunction(fixurePath_invalidNotValidJson)
-        ).rejects.toThrowError(
-            "Please ensure that the input is *valid* JSON (e.g. all keys are quoted)"
-        );
-    });
+        it("throws if data in the file is invalid", async () => {
+            expect.assertions(3);
 
-    it("does not create the path or file if incorrectly called", async () => {
-        const DIR_ID = nanoid(10);
-        const invalidPath = path.resolve(TEST_DIR_ROOT, DIR_ID);
-        const invalidFile = path.resolve(TEST_DIR_ROOT, DIR_ID, "test.json");
+            const invalidKeys = `checkFileHasValidData/dir/invalidKeys`;
+            const invalidNotArr = `checkFileHasValidData/dir/invalidNotArr`;
+            const invalidNotValidJson = `checkFileHasValidData/dir/invalidNotValidJson`;
 
-        expect.assertions(4);
+            await expect(mockedFunction(invalidKeys)).rejects.toThrowError(
+                "Keys do not match"
+            );
+            await expect(mockedFunction(invalidNotArr)).rejects.toThrowError(
+                "Please ensure the file contains an array of data"
+            );
+            await expect(
+                mockedFunction(invalidNotValidJson)
+            ).rejects.toThrowError(
+                "Please ensure that the input is *valid* JSON (e.g. all keys are quoted)"
+            );
+        });
 
-        await expect(mockedFunction(invalidPath)).rejects.toThrowError(
-            `Something went wrong when reading file at ${invalidPath}`
-        );
-        await expect(fs.promises.access(invalidPath)).rejects.toThrow();
+        it("does not create the dir or file if incorrectly called", async () => {
+            expect.assertions(4);
 
-        await expect(mockedFunction(invalidFile)).rejects.toThrowError(
-            `Something went wrong when reading file at ${invalidFile}`
-        );
-        await expect(fs.promises.stat(invalidFile)).rejects.toThrow();
-    });
+            const invalidDir = `checkFileHasValidData/dir/${nanoid(10)}`;
+            const invalidFile = `checkFileHasValidData/dir/${nanoid(
+                10
+            )}/test.json`;
 
-    it("throws when an invalid path is provided", async () => {
-        // node does not allow us to explicitly use octal escape sequences directly, so we split it up
-        const partialInvalidDirPath = path.resolve(
-            TEST_DIR_ROOT,
-            "./subfolder/"
-        );
-        const invalidDirPath = `${partialInvalidDirPath}\000\\test.json`;
-        const errorString = `Something went wrong when reading file at ${invalidDirPath}`;
+            await expect(mockedFunction(invalidDir)).rejects.toThrowError(
+                `Something went wrong when reading file at ${invalidDir}`
+            );
+            await expect(fs.promises.access(invalidDir)).rejects.toThrow();
 
-        expect.assertions(1);
+            await expect(mockedFunction(invalidFile)).rejects.toThrowError(
+                `Something went wrong when reading file at ${invalidFile}`
+            );
+            await expect(fs.promises.stat(invalidFile)).rejects.toThrow();
+        });
 
-        await expect(mockedFunction(invalidDirPath)).rejects.toThrowError(
-            errorString
-        );
+        it("throws when an invalid path is provided", async () => {
+            expect.assertions(1);
+
+            // node does not allow us to explicitly use octal escape sequences directly, so we split it up
+            const invalidFile = `checkFileHasValidData/dir/\000\\test.json`;
+            const errorString = `Something went wrong when reading file at ${invalidFile}`;
+
+            await expect(mockedFunction(invalidFile)).rejects.toThrowError(
+                errorString
+            );
+        });
     });
 });
