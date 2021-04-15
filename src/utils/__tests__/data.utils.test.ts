@@ -26,12 +26,12 @@ describe("utils - areAllDataKeysValid", () => {
     ];
 
     it("returns true with correct input", () => {
-        expect(areAllDataKeysValid(validTest)).toBeTruthy();
+        expect(mockedFunction(validTest)).toBeTruthy();
     });
 
     it("returns false with incorrect input", () => {
-        expect(areAllDataKeysValid(invalidTest)).toBeFalsy();
-        expect(areAllDataKeysValid(invalidTest2)).toBeFalsy();
-        expect(areAllDataKeysValid(invalidTest3)).toBeFalsy();
+        expect(mockedFunction(invalidTest)).toBeFalsy();
+        expect(mockedFunction(invalidTest2)).toBeFalsy();
+        expect(mockedFunction(invalidTest3)).toBeFalsy();
     });
 });
