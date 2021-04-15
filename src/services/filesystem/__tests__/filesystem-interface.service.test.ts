@@ -1,3 +1,4 @@
+import mockFs from "mock-fs";
 import { nanoid } from "nanoid";
 import path from "path";
 import { mocked } from "ts-jest/utils";
@@ -14,19 +15,34 @@ const fixurePath_invalidNoContents = path.resolve(
     "./__fixtures__/fs-interface_invalid-noContents.json"
 );
 
-describe("services - filesystem-interface", () => {
-    const mockedFsService = mocked(filesystemInterfaceInstance);
+describe("filesystem-interface service", () => {
+    beforeEach(() => {
+        mockFs({
+            "readDataFromFilesystemAsync/dir": {
+                "valid.json": mockFs.load(fixurePath_valid),
+                "invalidNoContents.json": mockFs.load(
+                    fixurePath_invalidNoContents
+                ),
+            },
+        });
+    });
+
+    afterEach(() => {
+        mockFs.restore();
+    });
+
+    const mockedService = mocked(filesystemInterfaceInstance);
 
     it("should be the correct class and already instantiated", () => {
-        expect(mockedFsService).toBeInstanceOf(FilesystemInterface);
+        expect(mockedService).toBeInstanceOf(FilesystemInterface);
     });
 
     describe("readDataFromFilesystemAsync", () => {
         it("should return the data in a valid file", async () => {
             expect.assertions(1);
 
-            const data = await mockedFsService.readDataFromFilesystemAsync(
-                fixurePath_valid
+            const data = await mockedService.readDataFromFilesystemAsync(
+                `readDataFromFilesystemAsync/dir/valid.json`
             );
             const expectedData = {
                 test: "valid file",
@@ -36,13 +52,11 @@ describe("services - filesystem-interface", () => {
         });
 
         it("should throw if an invalid file is passed in", async () => {
-            const DIR_ID = nanoid(10);
-            const invalidPath = path.resolve(__dirname, DIR_ID);
-
             expect.assertions(1);
 
+            const invalidPath = `readDataFromFilesystemAsync/dir/${nanoid(10)}`;
             await expect(
-                mockedFsService.readDataFromFilesystemAsync(invalidPath)
+                mockedService.readDataFromFilesystemAsync(invalidPath)
             ).rejects.toThrowError(
                 `File cannot be read at ${invalidPath} - does the file exist?`
             );
@@ -53,13 +67,11 @@ describe("services - filesystem-interface", () => {
         it("should throw if the file is empty", async () => {
             expect.assertions(1);
 
+            const invalidPath = `readDataFromFilesystemAsync/dir/invalidNoContents.json`;
             await expect(
-                mockedFsService.readDataFromFilesystemAsync(
-                    fixurePath_invalidNoContents
-                )
-            ).rejects.toThrowError(
-                `The file at ${fixurePath_invalidNoContents} was empty`
-            );
+                mockedService.readDataFromFilesystemAsync(invalidPath)
+            ).rejects.toThrowError(`The file at ${invalidPath} was empty`);
         });
     });
+    describe("services - filesystem-interface", () => {});
 });
