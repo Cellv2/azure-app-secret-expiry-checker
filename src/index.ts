@@ -3,9 +3,10 @@ import Config from "./config/config";
 import filesystemInterfaceInstance from "./services/filesystem/filesystem-interface.service";
 
 import nodemailer from "nodemailer";
-import mjml2html from "mjml";
 import { htmlToText } from "html-to-text";
 import * as MicrosoftGraph from "@microsoft/microsoft-graph-types";
+import { generateMjmlTable } from "./utils/email.utils";
+import { TABLE_HEADER_KEYS } from "./constants/email.constants";
 
 console.log("heya!");
 
@@ -32,68 +33,7 @@ const sendEmail = async () => {
         },
     ];
 
-    const TABLE_KEYS: Array<keyof MicrosoftGraph.PasswordCredential> = [
-        "displayName",
-        "keyId",
-        "endDateTime",
-    ];
-
-    const generateTableHeaders = (headerKeys: typeof TABLE_KEYS): string => {
-        const rowStart = `<tr style="border-bottom:1px solid #ecedee;text-align:left;">`;
-        const rowEnd = `</tr>`;
-        const headers = headerKeys.map(
-            (item) => `<th>${item}</th>`
-        );
-
-        return `${rowStart}${headers}${rowEnd}`;
-    };
-
-    const generateTableRows = (
-        headerKeys: typeof TABLE_KEYS,
-        tableData: MicrosoftGraph.PasswordCredential[]
-    ): string => {
-        const body = tableData
-            .map((item) => {
-                // each data object in the input should have the header key, so we map over the input data and extract each key in turn
-                const row = headerKeys.map(
-                    (key) => `<td>${item[key] ?? "null"}</td>`
-                );
-
-                return `<tr>${row}</tr>`;
-            })
-            .join("");
-
-        return body;
-    };
-
-    // running functions outside of html else the JS will get embedded as part of mjml
-    const generatedHeaders = generateTableHeaders(TABLE_KEYS);
-    const generatedTableRows = generateTableRows(TABLE_KEYS, testData);
-
-    const mjmlParse = mjml2html(
-        `
-        <mjml>
-            <mj-body>
-            <mj-section>
-                <mj-column>
-                <mj-text>
-                    Hello World!
-                </mj-text>
-                </mj-column>
-            </mj-section>
-            <mj-section>
-                <mj-column>
-                <mj-table>
-                    ${generatedHeaders}
-                    ${generatedTableRows}
-                </mj-table>
-                </mj-column>
-            </mj-section>
-            </mj-body>
-        </mjml>
-        `
-    );
-
+    const mjmlParse = generateMjmlTable(TABLE_HEADER_KEYS, testData);
     const htmlOutput = mjmlParse.html;
     const plainTextHtmlOutput = htmlToText(htmlOutput);
 
