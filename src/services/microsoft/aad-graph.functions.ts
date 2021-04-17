@@ -14,7 +14,7 @@ namespace AadGraphFunctions {
         service: AadGraphServiceInterface,
         connection: ClientConnection,
         applicationId: string
-    ): Promise<AzureAdGraphModels.PasswordCredential[] | undefined> => {
+    ): Promise<AzureAdGraphModels.PasswordCredential[]> => {
         try {
             const response = await service.request(
                 connection,
@@ -27,7 +27,7 @@ namespace AadGraphFunctions {
             }
             if (!response.ok) {
                 console.error("Response was not a 200");
-                return;
+                return Promise.reject("Response was not a 200");
             }
 
             const responseJson = await response.json();
@@ -35,7 +35,9 @@ namespace AadGraphFunctions {
                 console.error(
                     "There was no value property on the response. This probably shouldn't happen"
                 );
-                return;
+                return Promise.reject(
+                    "There was no value property on the response. This probably shouldn't happen"
+                );
             }
 
             const allApplications = responseJson.value as AzureAdGraphModels.Application[];
@@ -46,11 +48,19 @@ namespace AadGraphFunctions {
                 console.warn(
                     `Client ID "${connection.clientId}" in tenant "${connection.tenantId}" was not found`
                 );
-                return;
+                return Promise.reject(
+                    `Client ID "${connection.clientId}" in tenant "${connection.tenantId}" was not found`
+                );
             }
 
             const secrets = targetApplication.passwordCredentials;
             console.log(secrets);
+            if (secrets === undefined) {
+                return Promise.reject(
+                    `PasswordCredentials returned as undefined - the secrets may not be correct for ${connection.clientId}. `
+                );
+            }
+
             return secrets;
         } catch (err) {
             //TODO: make this better

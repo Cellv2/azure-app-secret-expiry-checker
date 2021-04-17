@@ -34,32 +34,48 @@ const DataRequestor: DataRequestorConstructor = class DataRequestor
                     tenantId,
                 };
 
-                let secretFromService: RetrievedSecretData["data"];
+                // TODO: could probably make this more DRY
+                // TODO: think I'd need to type the underlying namespace functions and use that as a ref to which function is used
+                // TODO: then I could just pass in the args as the function signature is the same for both
                 if (serviceToUse === "MsGraph") {
-                    secretFromService = await MsGraphFunctions.getSecretsForMsGraphApplicationsByAppId(
-                        this.msGraphServiceInstance,
-                        clientConnection,
-                        clientId
-                    );
+                    try {
+                        const secret = await MsGraphFunctions.getSecretsForMsGraphApplicationsByAppId(
+                            this.msGraphServiceInstance,
+                            clientConnection,
+                            clientId
+                        );
+
+                        retrievedSecrets.push({
+                            endpointUsed: serviceToUse,
+                            data: secret,
+                        });
+                    } catch (err) {
+                        console.error(err);
+                        return Promise.reject(
+                            `Secrets not successfully retrieved from client ID ${clientId}`
+                        );
+                    }
                 }
+
                 if (serviceToUse === "AadGraph") {
-                    secretFromService = await AadGraphFunctions.getSecretsForAadGraphApplicationsByAppId(
-                        this.aadGraphServiceInstance,
-                        clientConnection,
-                        clientId
-                    );
-                }
+                    try {
+                        const secret = await AadGraphFunctions.getSecretsForAadGraphApplicationsByAppId(
+                            this.aadGraphServiceInstance,
+                            clientConnection,
+                            clientId
+                        );
 
-                if (!secretFromService) {
-                    console.warn(
-                        `Secrets not successfully retrieved from client ID ${clientId}`
-                    );
+                        retrievedSecrets.push({
+                            endpointUsed: serviceToUse,
+                            data: secret,
+                        });
+                    } catch (err) {
+                        console.error(err);
+                        return Promise.reject(
+                            `Secrets not successfully retrieved from client ID ${clientId}`
+                        );
+                    }
                 }
-
-                retrievedSecrets.push({
-                    endpointUsed: serviceToUse,
-                    data: secretFromService,
-                });
             })
         );
 

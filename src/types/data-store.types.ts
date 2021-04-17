@@ -12,6 +12,5 @@ export type RetrievedSecretData = {
     endpointUsed: AvailableMicrosoftServices;
     data:
         | MicrosoftGraph.PasswordCredential[]
-        | AzureAdGraphModels.PasswordCredential[]
-        | undefined;
+        | AzureAdGraphModels.PasswordCredential[];
 };
