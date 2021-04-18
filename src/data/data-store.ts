@@ -1,44 +1,62 @@
 import { RetrievedSecretData } from "../types/data-store.types";
 import { Data } from "../types/data.types";
 
+import * as MicrosoftGraph from "@microsoft/microsoft-graph-types";
+import { GraphRbacManagementModels as AzureAdGraphModels } from "@azure/graph";
 export interface DataStoreConstructor {
-    new (data: Data | Data[]): DataStoreInterface;
+    new (): DataStoreInterface;
 }
 export interface DataStoreInterface {
     bulkAddSecretsToStore: (secrets: RetrievedSecretData[]) => void;
-    getDataObjectsToCheck: () => Data[];
-    getRetrievedEndpointData: () => RetrievedSecretData[] | undefined;
+    getDataObjectsToCheck: () => Data[] | null;
+    getRetrievedEndpointData: () => RetrievedSecretData[] | null;
+    setDataObjectsToCheck: (data: Data[] | Data) => void;
+    getEmailData: () =>
+        | (
+              | MicrosoftGraph.PasswordCredential
+              | AzureAdGraphModels.PasswordCredential
+          )[]
+        | null;
 }
 
 export const DataStore: DataStoreConstructor = class DataStore
     implements DataStoreInterface {
-    private _dataObjects: Data[];
-    constructor(data: Data | Data[]) {
-        // data can be created from either the single or multiple input types, so we force convert to an array for consistency
+    private dataObjects: Data[] | null = null;
+    private allRetrievedSecrets: RetrievedSecretData[] | null = null;
+
+    getDataObjectsToCheck = (): Data[] | null => {
+        return this.dataObjects;
+    };
+
+    setDataObjectsToCheck = (data: Data[] | Data): void => {
         if (!Array.isArray(data)) {
-            this._dataObjects = [data];
+            // data can be created from either the single or multiple input types, so we force convert to an array for consistency
+            this.dataObjects = [data];
         } else {
-            this._dataObjects = data;
+            this.dataObjects = data;
         }
-    }
-
-    private allRetrievedSecrets: RetrievedSecretData[] | undefined;
-
-    getDataObjectsToCheck = (): Data[] => {
-        return this._dataObjects;
     };
 
     getRetrievedEndpointData() {
-        if (!this.allRetrievedSecrets) {
-            return undefined;
-        }
-
         return this.allRetrievedSecrets;
     }
 
     bulkAddSecretsToStore = (secrets: RetrievedSecretData[]) => {
         this.allRetrievedSecrets = secrets;
     };
+
+    getEmailData = () => {
+        if (!this.allRetrievedSecrets) {
+            return null;
+        }
+
+        return this.allRetrievedSecrets.flatMap<RetrievedSecretData["data"]>(
+            (obj) => obj.data
+        );
+        // return this.allRetrievedSecrets.map(obj => obj.data).flat();
+    };
 };
 
-export default DataStore;
+const dataStoreInstance = new DataStore();
+
+export default dataStoreInstance;
