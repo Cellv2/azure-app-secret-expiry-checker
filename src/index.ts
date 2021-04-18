@@ -1,12 +1,13 @@
+import { GraphRbacManagementModels as AzureAdGraphModels } from "@azure/graph";
+import * as MicrosoftGraph from "@microsoft/microsoft-graph-types";
+import { htmlToText } from "html-to-text";
+import nodemailer from "nodemailer";
 import { askQuestions } from "./cli";
 import Config from "./config/config";
-import filesystemInterfaceInstance from "./services/filesystem/filesystem-interface.service";
-
-import nodemailer from "nodemailer";
-import { htmlToText } from "html-to-text";
-import * as MicrosoftGraph from "@microsoft/microsoft-graph-types";
-import { generateMjmlTable } from "./utils/email.utils";
 import { TABLE_HEADER_KEYS } from "./constants/email.constants";
+import dataStoreInstance from "./data/data-store";
+import filesystemInterfaceInstance from "./services/filesystem/filesystem-interface.service";
+import { generateMjmlTable } from "./utils/email.utils";
 
 console.log("heya!");
 
@@ -19,12 +20,18 @@ const mainFs = () => {
 };
 // mainFs();
 
-const sendEmail = async () => {
+const sendEmail = async (
+    emailData: (
+        | MicrosoftGraph.PasswordCredential
+        | AzureAdGraphModels.PasswordCredential
+    )[]
+) => {
     const testData: MicrosoftGraph.PasswordCredential[] = [
         {
             displayName: "App_1",
             endDateTime: "Some time in the future",
             keyId: "a guid",
+            hint: "some hint",
         },
         {
             displayName: "App_2",
@@ -33,7 +40,7 @@ const sendEmail = async () => {
         },
     ];
 
-    const mjmlParse = generateMjmlTable(TABLE_HEADER_KEYS, testData);
+    const mjmlParse = generateMjmlTable(TABLE_HEADER_KEYS, emailData);
     const htmlOutput = mjmlParse.html;
     const plainTextHtmlOutput = htmlToText(htmlOutput);
 
@@ -50,7 +57,9 @@ const sendEmail = async () => {
         },
     });
 
-    const sendTestEmail: boolean = true;
+    // ! Set this to true to send an email
+    // ! no confidential info should be sent regardless of columns used, but please make sure you know what you are sending
+    const sendTestEmail: boolean = false;
     if (sendTestEmail) {
         // send mail with defined transport object
         const info = await transporter.sendMail({
@@ -67,12 +76,19 @@ const sendEmail = async () => {
         // Preview only available when sending through an Ethereal account
         console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
         // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+    } else {
+        console.log(htmlOutput);
     }
 };
 
 const main = async (): Promise<void> => {
-    // askQuestions();
-    sendEmail();
+    await askQuestions();
+
+    const data = dataStoreInstance.getEmailData();
+    if (data) {
+        console.log("DATA:", data);
+        sendEmail(data);
+    }
 };
 
 main();

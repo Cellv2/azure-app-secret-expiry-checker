@@ -1,6 +1,7 @@
 import * as MicrosoftGraph from "@microsoft/microsoft-graph-types";
 import mjml2html from "mjml";
 import { TABLE_HEADER_KEYS } from "../constants/email.constants";
+import { GraphRbacManagementModels as AzureAdGraphModels } from "@azure/graph";
 
 export const generateTableHeaders = (
     headerKeys: typeof TABLE_HEADER_KEYS
@@ -14,7 +15,10 @@ export const generateTableHeaders = (
 
 export const generateTableRows = (
     headerKeys: typeof TABLE_HEADER_KEYS,
-    tableData: MicrosoftGraph.PasswordCredential[]
+    tableData: (
+        | MicrosoftGraph.PasswordCredential
+        | AzureAdGraphModels.PasswordCredential
+    )[]
 ): string => {
     const body = tableData
         .map((item) => {
@@ -38,11 +42,15 @@ export const generateTableRows = (
  */
 export const generateMjmlTable = (
     headerKeys: typeof TABLE_HEADER_KEYS,
-    tableData: MicrosoftGraph.PasswordCredential[]
+    tableData: (
+        | MicrosoftGraph.PasswordCredential
+        | AzureAdGraphModels.PasswordCredential
+    )[]
 ) => {
     // running functions outside of html else the JS will get embedded as part of mjml
     const generatedHeaders = generateTableHeaders(headerKeys);
     const generatedTableRows = generateTableRows(headerKeys, tableData);
+    console.log(generatedTableRows)
 
     const mjmlParse = mjml2html(
         `
