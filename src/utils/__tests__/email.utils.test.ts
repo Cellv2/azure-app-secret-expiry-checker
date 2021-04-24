@@ -1,13 +1,10 @@
+import { mocked } from "ts-jest/utils";
+import { TABLE_HEADER_KEYS } from "../../constants/email.constants";
 import {
     generateMjmlTable,
     generateTableHeaders,
     generateTableRows,
 } from "../email.utils";
-import { mocked } from "ts-jest/utils";
-import { TABLE_HEADER_KEYS } from "../../constants/email.constants";
-
-import fs from "fs";
-import path from "path";
 
 const testHeaderKeys = [
     "displayName",
@@ -66,7 +63,7 @@ describe("email utils", () => {
         });
     });
 
-    describe("generateMjmlTable", async () => {
+    describe("generateMjmlTable", () => {
         const mockedFunction = mocked(generateMjmlTable);
 
         // would prefer actual HTML comparison rather than snapshots, but the line breaks are acting funny

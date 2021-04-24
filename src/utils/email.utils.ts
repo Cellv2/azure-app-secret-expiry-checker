@@ -1,7 +1,7 @@
+import { GraphRbacManagementModels as AzureAdGraphModels } from "@azure/graph";
 import * as MicrosoftGraph from "@microsoft/microsoft-graph-types";
 import mjml2html from "mjml";
 import { TABLE_HEADER_KEYS } from "../constants/email.constants";
-import { GraphRbacManagementModels as AzureAdGraphModels } from "@azure/graph";
 
 export const generateTableHeaders = (
     headerKeys: typeof TABLE_HEADER_KEYS
@@ -50,7 +50,6 @@ export const generateMjmlTable = (
     // running functions outside of html else the JS will get embedded as part of mjml
     const generatedHeaders = generateTableHeaders(headerKeys);
     const generatedTableRows = generateTableRows(headerKeys, tableData);
-    console.log(generatedTableRows)
 
     const mjmlParse = mjml2html(
         `
