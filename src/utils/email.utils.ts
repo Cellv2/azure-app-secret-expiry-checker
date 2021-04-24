@@ -1,7 +1,10 @@
 import { GraphRbacManagementModels as AzureAdGraphModels } from "@azure/graph";
 import * as MicrosoftGraph from "@microsoft/microsoft-graph-types";
 import mjml2html from "mjml";
+import nodemailer from "nodemailer";
+import { MAILTRAP_PASSWORD, MAILTRAP_USERNAME } from "../config/secrets";
 import { TABLE_HEADER_KEYS } from "../constants/email.constants";
+import { EmailTransportTypes } from "../types/email.types";
 
 export const generateTableHeaders = (
     headerKeys: typeof TABLE_HEADER_KEYS
@@ -76,4 +79,41 @@ export const generateMjmlTable = (
     );
 
     return mjmlParse;
+};
+
+export const createEmailTransporter = async (
+    transportType: EmailTransportTypes
+) => {
+    // did want to just reutnr a simple object, but the ethereal UN/PW is async, so if statements it is
+    if (transportType === "ethereal") {
+        const testAccount = await nodemailer.createTestAccount(); // ethereal.email test account
+
+        return nodemailer.createTransport({
+            host: "smtp.ethereal.email",
+            port: 587,
+            secure: false,
+            auth: {
+                user: testAccount.user, // generated ethereal user
+                pass: testAccount.pass, // generated ethereal password
+            },
+        });
+    }
+
+    if (transportType === "mailtrap") {
+        return nodemailer.createTransport({
+            host: "smtp.mailtrap.io",
+            port: 2525,
+            auth: {
+                user: MAILTRAP_USERNAME,
+                pass: MAILTRAP_PASSWORD,
+            },
+        });
+    }
+
+    // TODO: set up sendgrid
+    if (transportType === "sendgrid") {
+        return Promise.reject("Sendgrid is not yet available");
+    }
+
+    return Promise.reject("Please enter a transport type");
 };

@@ -9,3 +9,5 @@ export const CLIENT_ID_DEV_2 = process.env.CLIENT_ID_DEV_2;
 export const CLIENT_SECRET_DEV_2 = process.env.CLIENT_SECRET_DEV_2;
 export const CLIENT_SECRETID_DEV_2 = process.env.CLIENT_SECRETID_DEV_2;
 export const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+export const MAILTRAP_USERNAME = process.env.MAILTRAP_USERNAME;
+export const MAILTRAP_PASSWORD = process.env.MAILTRAP_PASSWORD;

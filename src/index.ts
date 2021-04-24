@@ -7,7 +7,8 @@ import Config from "./config/config";
 import { TABLE_HEADER_KEYS } from "./constants/email.constants";
 import dataStoreInstance from "./data/data-store";
 import filesystemInterfaceInstance from "./services/filesystem/filesystem-interface.service";
-import { generateMjmlTable } from "./utils/email.utils";
+import { EmailTransportTypes } from "./types/email.types";
+import { createEmailTransporter, generateMjmlTable } from "./utils/email.utils";
 
 console.log("heya!");
 
@@ -21,6 +22,7 @@ const mainFs = () => {
 // mainFs();
 
 const sendEmail = async (
+    emailService: EmailTransportTypes,
     emailData: (
         | MicrosoftGraph.PasswordCredential
         | AzureAdGraphModels.PasswordCredential
@@ -44,18 +46,7 @@ const sendEmail = async (
     const htmlOutput = mjmlParse.html;
     const plainTextHtmlOutput = htmlToText(htmlOutput);
 
-    // ethereal.email test account
-    const testAccount = await nodemailer.createTestAccount();
-
-    const transporter = nodemailer.createTransport({
-        host: "smtp.ethereal.email",
-        port: 587,
-        secure: false,
-        auth: {
-            user: testAccount.user, // generated ethereal user
-            pass: testAccount.pass, // generated ethereal password
-        },
-    });
+    const transporter = await createEmailTransporter(emailService);
 
     // ! Set this to true to send an email
     // ! no confidential info should be sent regardless of columns used, but please make sure you know what you are sending
@@ -87,7 +78,7 @@ const main = async (): Promise<void> => {
     const data = dataStoreInstance.getEmailData();
     if (data) {
         console.log("DATA:", data);
-        sendEmail(data);
+        sendEmail("ethereal", data);
     }
 };
 
