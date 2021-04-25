@@ -1,9 +1,12 @@
+import { GraphRbacManagementModels as AzureAdGraphModels } from "@azure/graph";
+import * as MicrosoftGraph from "@microsoft/microsoft-graph-types";
 import { mocked } from "ts-jest/utils";
 import { TABLE_HEADER_KEYS } from "../../constants/email.constants";
 import {
     generateMjmlTable,
     generateTableHeaders,
     generateTableRows,
+    normaliseData,
 } from "../email.utils";
 
 const testHeaderKeys = [
@@ -79,6 +82,108 @@ describe("email utils", () => {
             );
             expect(actualHeadersParse.errors).toHaveLength(0);
             expect(actualHeadersParse.html).toMatchSnapshot();
+        });
+    });
+
+    describe("normaliseData", () => {
+        const mockedFunction = mocked(normaliseData);
+
+        // start/end dates on the AAD object is a Date
+        const endDate: Date = new Date("2022-05-24T00:00:00.000Z");
+        const startDate: Date = new Date("2021-04-25T00:00:00.000Z");
+
+        const endDateTest = {
+            displayName: "App_1",
+            keyId: "a guid",
+            hint: "some hint",
+            endDate: endDate,
+        };
+        const endDateTest_expected = {
+            displayName: "App_1",
+            keyId: "a guid",
+            hint: "some hint",
+            endDate: endDate,
+            endDateTime: "2022-05-24T00:00:00.000Z",
+        };
+
+        const startDateTest = {
+            displayName: "App_2",
+            endDateTime: "some time in the past",
+            keyId: "another guid",
+            startDate: startDate,
+        };
+        const startDateTest_expected = {
+            displayName: "App_2",
+            endDateTime: "some time in the past",
+            keyId: "another guid",
+            startDate: startDate,
+            startDateTime: "2021-04-25T00:00:00.000Z",
+        };
+
+        const notAlteredTest = {
+            displayName: "I_should_not_be_altered",
+            endDateTime: "random",
+            keyId: "wat",
+            startDateTime: "yes",
+        };
+
+        it("correctly adds the endDate property", () => {
+            const inputData: (MicrosoftGraph.PasswordCredential &
+                AzureAdGraphModels.PasswordCredential)[] = [endDateTest];
+
+            const expectedData = [endDateTest_expected];
+            expect(mockedFunction(inputData)).toEqual(expectedData);
+        });
+
+        it("correctly adds the startDate property", () => {
+            const inputData: (MicrosoftGraph.PasswordCredential &
+                AzureAdGraphModels.PasswordCredential)[] = [startDateTest];
+
+            const expectedData = [startDateTest_expected];
+            expect(mockedFunction(inputData)).toEqual(expectedData);
+        });
+
+        it("will add properties to multiple objects", () => {
+            const inputData: (MicrosoftGraph.PasswordCredential &
+                AzureAdGraphModels.PasswordCredential)[] = [
+                startDateTest,
+                endDateTest,
+            ];
+
+            const expectedData = [startDateTest_expected, endDateTest_expected];
+            expect(mockedFunction(inputData)).toEqual(expectedData);
+        });
+
+        it("does not add properties if not required", () => {
+            const inputData_single: (MicrosoftGraph.PasswordCredential &
+                AzureAdGraphModels.PasswordCredential)[] = [notAlteredTest];
+
+            const expectedData_single = [notAlteredTest];
+            expect(mockedFunction(inputData_single)).toEqual(
+                expectedData_single
+            );
+
+            const inputData_multiple: (MicrosoftGraph.PasswordCredential &
+                AzureAdGraphModels.PasswordCredential)[] = [
+                notAlteredTest,
+                startDateTest,
+                endDateTest,
+                notAlteredTest,
+                endDateTest,
+                notAlteredTest,
+            ];
+
+            const expectedData_multiple = [
+                notAlteredTest,
+                startDateTest_expected,
+                endDateTest_expected,
+                notAlteredTest,
+                endDateTest_expected,
+                notAlteredTest,
+            ];
+            expect(mockedFunction(inputData_multiple)).toEqual(
+                expectedData_multiple
+            );
         });
     });
 });
