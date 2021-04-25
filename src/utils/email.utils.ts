@@ -128,10 +128,10 @@ export const normaliseData = (
     data.map((item) => {
         let obj = item;
         if (item.endDate) {
-            obj.endDateTime = item.endDate.toISOString();
+            obj.endDateTime = new Date(item.endDate).toISOString();
         }
         if (item.startDate) {
-            obj.startDateTime = item.startDate.toISOString();
+            obj.startDateTime = new Date(item.startDate).toISOString();
         }
 
         return obj;
