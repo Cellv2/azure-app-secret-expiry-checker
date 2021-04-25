@@ -10,6 +10,8 @@ import filesystemInterfaceInstance from "./services/filesystem/filesystem-interf
 import { EmailTransportTypes } from "./types/email.types";
 import { createEmailTransporter, generateMjmlTable } from "./utils/email.utils";
 
+import { Command } from "commander";
+
 console.log("heya!");
 
 const mainFs = () => {
@@ -71,13 +73,63 @@ const sendEmail = async (
 };
 
 const main = async (): Promise<void> => {
-    await askQuestions();
+    // try {
+    //     await askQuestions();
 
-    const data = dataStoreInstance.getEmailData();
-    if (data) {
-        console.log("DATA:", data);
-        sendEmail("ethereal", data);
+    //     const data = dataStoreInstance.getEmailData();
+    //     if (data) {
+    //         console.log("DATA:", data);
+    //         await sendEmail("ethereal", data);
+    //     }
+    // } catch (err) {
+    //     console.error(err);
+    // }
+
+    const program = new Command();
+
+    program
+        .option(
+            "-i, --interactive",
+            "interactive mode, all other flags are ignored if used",
+            false
+        )
+        .option("-f, --file [path]", "absolute path to file with data to check")
+        .option("-e, --email-config <options...>", "the email config")
+        .option("-o, --out-file [path]", "absolute path to write the returned data to")
+    // .option("-d, --debug", "output extra debugging")
+    // .option("-s, --small", "small pizza size")
+    // .option("-p, --pizza-type <type>", "flavour of pizza");
+
+    program.parse(process.argv);
+
+    const options = program.opts();
+    // if (options.debug) console.log(options);
+    // console.log("pizza details:");
+    // if (options.small) console.log("- small pizza size");
+    // if (options.pizzaType) console.log(`- ${options.pizzaType}`);
+    if (options.interactive) {
+        console.log("this was interactive");
+        try {
+            await askQuestions();
+
+            const data = dataStoreInstance.getEmailData();
+            if (data) {
+                console.log("DATA:", data);
+                await sendEmail("ethereal", data);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+    if (!options.interactive) {
+        console.log("defaulted");
     }
 };
 
-main();
+try {
+    (async () => {
+        await main();
+    })();
+} catch (err) {
+    console.error(err);
+}
