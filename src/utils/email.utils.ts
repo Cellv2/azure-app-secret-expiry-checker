@@ -21,18 +21,7 @@ export const generateTableRows = (
     tableData: (MicrosoftGraph.PasswordCredential &
         AzureAdGraphModels.PasswordCredential)[]
 ): string => {
-    // because AAD and MSG differ, we map the AAD values onto MSG values (MSG is newer, so that was used)
-    const normalisedData = tableData.map((item) => {
-        let obj = item;
-        if (item.endDate) {
-            obj.endDateTime = "" + item.endDate;
-        }
-        if (item.startDate) {
-            obj.startDateTime = "" + item.startDateTime;
-        }
-        return obj;
-    });
-
+    const normalisedData = normaliseData(tableData);
     const body = normalisedData
         .map((item) => {
             // each data object in the input should have the header key, so we map over the input data and extract each key in turn
@@ -125,3 +114,25 @@ export const createEmailTransporter = async (
 
     return Promise.reject("Please enter a transport type");
 };
+
+/**
+ * Utility to normalse AAD and MSG data objects in order to keep in line with the table headers
+ * Because AAD and MSG differ, it's easier to just use one type (MSG is newer, so that was used)
+ * @param {(MicrosoftGraph.PasswordCredential & AzureAdGraphModels.PasswordCredential)[]} data An array of PasswordCredential data
+ * @returns The exact same object it was an MSG object. If AAD, it will add additional properties (but otherwise still return the same object)
+ */
+export const normaliseData = (
+    data: (MicrosoftGraph.PasswordCredential &
+        AzureAdGraphModels.PasswordCredential)[]
+) =>
+    data.map((item) => {
+        let obj = item;
+        if (item.endDate) {
+            obj.endDateTime = item.endDate.toISOString();
+        }
+        if (item.startDate) {
+            obj.startDateTime = item.startDate.toISOString();
+        }
+
+        return obj;
+    });
