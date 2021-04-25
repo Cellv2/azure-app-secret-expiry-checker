@@ -18,17 +18,27 @@ export const generateTableHeaders = (
 
 export const generateTableRows = (
     headerKeys: typeof TABLE_HEADER_KEYS,
-    tableData: (
-        | MicrosoftGraph.PasswordCredential
-        | AzureAdGraphModels.PasswordCredential
-    )[]
+    tableData: (MicrosoftGraph.PasswordCredential &
+        AzureAdGraphModels.PasswordCredential)[]
 ): string => {
-    const body = tableData
+    // because AAD and MSG differ, we map the AAD values onto MSG values (MSG is newer, so that was used)
+    const normalisedData = tableData.map((item) => {
+        let obj = item;
+        if (item.endDate) {
+            obj.endDateTime = "" + item.endDate;
+        }
+        if (item.startDate) {
+            obj.startDateTime = "" + item.startDateTime;
+        }
+        return obj;
+    });
+
+    const body = normalisedData
         .map((item) => {
             // each data object in the input should have the header key, so we map over the input data and extract each key in turn
-            const row = headerKeys.map(
-                (key) => `<td>${item[key] ?? "null"}</td>`
-            );
+            const row = headerKeys.map((key) => {
+                return `<td>${item[key] ?? null}</td>`;
+            });
 
             return `<tr>${row}</tr>`;
         })
@@ -45,10 +55,8 @@ export const generateTableRows = (
  */
 export const generateMjmlTable = (
     headerKeys: typeof TABLE_HEADER_KEYS,
-    tableData: (
-        | MicrosoftGraph.PasswordCredential
-        | AzureAdGraphModels.PasswordCredential
-    )[]
+    tableData: (MicrosoftGraph.PasswordCredential &
+        AzureAdGraphModels.PasswordCredential)[]
 ) => {
     // running functions outside of html else the JS will get embedded as part of mjml
     const generatedHeaders = generateTableHeaders(headerKeys);

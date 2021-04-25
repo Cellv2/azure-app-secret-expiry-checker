@@ -23,10 +23,8 @@ const mainFs = () => {
 
 const sendEmail = async (
     emailService: EmailTransportTypes,
-    emailData: (
-        | MicrosoftGraph.PasswordCredential
-        | AzureAdGraphModels.PasswordCredential
-    )[]
+    emailData: (MicrosoftGraph.PasswordCredential &
+        AzureAdGraphModels.PasswordCredential)[]
 ) => {
     const testData: MicrosoftGraph.PasswordCredential[] = [
         {

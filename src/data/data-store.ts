@@ -12,10 +12,8 @@ export interface DataStoreInterface {
     getRetrievedEndpointData: () => RetrievedSecretData[] | null;
     setDataObjectsToCheck: (data: Data[] | Data) => void;
     getEmailData: () =>
-        | (
-              | MicrosoftGraph.PasswordCredential
-              | AzureAdGraphModels.PasswordCredential
-          )[]
+        | (MicrosoftGraph.PasswordCredential &
+              AzureAdGraphModels.PasswordCredential)[]
         | null;
 }
 
