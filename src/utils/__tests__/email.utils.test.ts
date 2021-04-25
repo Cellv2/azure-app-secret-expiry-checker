@@ -99,10 +99,7 @@ describe("email utils", () => {
             endDate: endDate,
         };
         const endDateTest_expected = {
-            displayName: "App_1",
-            keyId: "a guid",
-            hint: "some hint",
-            endDate: endDate,
+            ...endDateTest,
             endDateTime: "2022-05-24T00:00:00.000Z",
         };
 
@@ -113,10 +110,7 @@ describe("email utils", () => {
             startDate: startDate,
         };
         const startDateTest_expected = {
-            displayName: "App_2",
-            endDateTime: "some time in the past",
-            keyId: "another guid",
-            startDate: startDate,
+            ...startDateTest,
             startDateTime: "2021-04-25T00:00:00.000Z",
         };
 
