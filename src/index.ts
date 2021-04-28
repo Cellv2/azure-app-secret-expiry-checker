@@ -1,5 +1,6 @@
 import { GraphRbacManagementModels as AzureAdGraphModels } from "@azure/graph";
 import * as MicrosoftGraph from "@microsoft/microsoft-graph-types";
+import { Command } from "commander";
 import { htmlToText } from "html-to-text";
 import nodemailer from "nodemailer";
 import { askQuestions } from "./cli";
@@ -10,7 +11,7 @@ import filesystemInterfaceInstance from "./services/filesystem/filesystem-interf
 import { EmailTransportTypes } from "./types/email.types";
 import { createEmailTransporter, generateMjmlTable } from "./utils/email.utils";
 
-import { Command } from "commander";
+
 
 console.log("heya!");
 
@@ -94,8 +95,13 @@ const main = async (): Promise<void> => {
             false
         )
         .option("-f, --file [path]", "absolute path to file with data to check")
-        .option("-e, --email-config <options...>", "the email config")
-        .option("-o, --out-file [path]", "absolute path to write the returned data to")
+        // .option("-e, --email-config <options...>", "the email config")
+        .option("-s, --email-service [service]", "the email service to use", "ethereal")
+        .option("-u, --email-username", "username used for auth against the selected email service")
+        .option("-p, --email-password", "password used for auth against the selected email service")
+        .option("-a, --api-key", "api key for auth against the selected email service")
+        .option("-o, --out-file [path]", "absolute path to write the returned data to (if omitted, no file will be created)")
+        .option("-d, --display", "whether to display the output in the terminal", true)
     // .option("-d, --debug", "output extra debugging")
     // .option("-s, --small", "small pizza size")
     // .option("-p, --pizza-type <type>", "flavour of pizza");
@@ -121,6 +127,7 @@ const main = async (): Promise<void> => {
             console.error(err);
         }
     }
+
     if (!options.interactive) {
         console.log("defaulted");
     }
