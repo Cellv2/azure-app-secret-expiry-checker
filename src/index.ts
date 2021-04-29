@@ -1,17 +1,16 @@
 import { GraphRbacManagementModels as AzureAdGraphModels } from "@azure/graph";
 import * as MicrosoftGraph from "@microsoft/microsoft-graph-types";
-import { Command } from "commander";
 import { htmlToText } from "html-to-text";
 import nodemailer from "nodemailer";
+import yargs from "yargs";
 import { askQuestions } from "./cli";
 import Config from "./config/config";
 import { TABLE_HEADER_KEYS } from "./constants/email.constants";
+import dataRequestorInstance from "./data/data-requestor";
 import dataStoreInstance from "./data/data-store";
 import filesystemInterfaceInstance from "./services/filesystem/filesystem-interface.service";
 import { EmailTransportTypes } from "./types/email.types";
 import { createEmailTransporter, generateMjmlTable } from "./utils/email.utils";
-
-
 
 console.log("heya!");
 
@@ -74,46 +73,23 @@ const sendEmail = async (
 };
 
 const main = async (): Promise<void> => {
-    // try {
-    //     await askQuestions();
+    const availableEmailServices: ReadonlyArray<EmailTransportTypes> = [
+        "ethereal",
+        "mailtrap",
+        "sendgrid",
+    ];
+    const argv = yargs(process.argv.slice(2)).options({
+        i: { type: "boolean", default: false, alias: "interactive", description: "interactive mode, all other flags are ignored if used" },
+        f: { type: "string", demandOption: true, alias: "file", description: "absolute path to file with data to check" },
+        s: { choices: availableEmailServices, demandOption: true, alias: "email-service", description: "the email service to use" },
+        u: { type: "string", alias: "email-username", description: "username for email service" },
+        p: { type: "string", alias: "email-password", description: "password for email service" },
+        a: { type: "string", alias: "email-api-key", description: "api key for email service" },
+        o: { type: "string", alias: "out-file", description: "absolute path to write the returned data to (if omitted, no file will be created)"},
+        d: { type: "boolean", alias: "display", description: "display terminal output", default: true }
+    }).argv;
 
-    //     const data = dataStoreInstance.getEmailData();
-    //     if (data) {
-    //         console.log("DATA:", data);
-    //         await sendEmail("ethereal", data);
-    //     }
-    // } catch (err) {
-    //     console.error(err);
-    // }
-
-    const program = new Command();
-
-    program
-        .option(
-            "-i, --interactive",
-            "interactive mode, all other flags are ignored if used",
-            false
-        )
-        .option("-f, --file [path]", "absolute path to file with data to check")
-        // .option("-e, --email-config <options...>", "the email config")
-        .option("-s, --email-service [service]", "the email service to use", "ethereal")
-        .option("-u, --email-username", "username used for auth against the selected email service")
-        .option("-p, --email-password", "password used for auth against the selected email service")
-        .option("-a, --api-key", "api key for auth against the selected email service")
-        .option("-o, --out-file [path]", "absolute path to write the returned data to (if omitted, no file will be created)")
-        .option("-d, --display", "whether to display the output in the terminal", true)
-    // .option("-d, --debug", "output extra debugging")
-    // .option("-s, --small", "small pizza size")
-    // .option("-p, --pizza-type <type>", "flavour of pizza");
-
-    program.parse(process.argv);
-
-    const options = program.opts();
-    // if (options.debug) console.log(options);
-    // console.log("pizza details:");
-    // if (options.small) console.log("- small pizza size");
-    // if (options.pizzaType) console.log(`- ${options.pizzaType}`);
-    if (options.interactive) {
+    if (argv.i) {
         console.log("this was interactive");
         try {
             await askQuestions();
@@ -126,39 +102,34 @@ const main = async (): Promise<void> => {
         } catch (err) {
             console.error(err);
         }
-
-        return Promise.resolve();
     }
 
-    if (!options.interactive) {
-        console.log("defaulted");
+    if (!argv.i) {
+        console.log("non-interactive");
+        try {
+            const fileData = await filesystemInterfaceInstance.readDataFromFilesystemAsync(
+                argv.f
+            );
 
-        if (!options.file) {
-            console.log("hiya")
+            dataStoreInstance.setDataObjectsToCheck(JSON.parse(fileData));
+            const data = dataStoreInstance.getDataObjectsToCheck();
+            if (data) {
+                const secrets = await dataRequestorInstance.requestSecretsForAllApps(
+                    data
+                );
+                dataStoreInstance.bulkAddSecretsToStore(secrets);
+            }
+
+            const emailData = dataStoreInstance.getEmailData();
+            console.log(emailData);
+            if (emailData) {
+                await sendEmail(argv.s, emailData);
+            }
+        } catch (err) {
+            console.error(err);
+            return;
         }
-
-        const selectedEmailService = options.emailService as EmailTransportTypes;
-
-        // if (selectedEmailService === "ethereal") {
-        //     try {
-        //         const fileData = await filesystemInterfaceInstance.readDataFromFilesystemAsync(
-        //             options.file
-        //         );
-
-        //         dataStoreInstance.setDataObjectsToCheck(
-        //             JSON.parse(fileData)
-        //         );
-        //     } catch (err) {
-        //         console.error(err);
-        //         return;
-        //     }
-        // }
-
-        console.log(JSON.stringify(options));
-        return Promise.resolve();
     }
-
-    return Promise.reject("Sorry, something went wrong. While this shouldn't happen, it looks as though the --interactive flag wasn't set");
 };
 
 try {
