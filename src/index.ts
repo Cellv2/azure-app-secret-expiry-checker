@@ -126,11 +126,39 @@ const main = async (): Promise<void> => {
         } catch (err) {
             console.error(err);
         }
+
+        return Promise.resolve();
     }
 
     if (!options.interactive) {
         console.log("defaulted");
+
+        if (!options.file) {
+            console.log("hiya")
+        }
+
+        const selectedEmailService = options.emailService as EmailTransportTypes;
+
+        // if (selectedEmailService === "ethereal") {
+        //     try {
+        //         const fileData = await filesystemInterfaceInstance.readDataFromFilesystemAsync(
+        //             options.file
+        //         );
+
+        //         dataStoreInstance.setDataObjectsToCheck(
+        //             JSON.parse(fileData)
+        //         );
+        //     } catch (err) {
+        //         console.error(err);
+        //         return;
+        //     }
+        // }
+
+        console.log(JSON.stringify(options));
+        return Promise.resolve();
     }
+
+    return Promise.reject("Sorry, something went wrong. While this shouldn't happen, it looks as though the --interactive flag wasn't set");
 };
 
 try {
