@@ -39,7 +39,6 @@
     "dependencies": {
         "@azure/msal-node": "^1.0.1",
         "chalk": "^4.1.0",
-        "commander": "^2.20.3",
         "dotenv": "^8.2.0",
         "html-to-text": "^7.0.0",
         "inquirer": "^8.0.0",
