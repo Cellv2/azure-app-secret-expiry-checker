@@ -170,20 +170,17 @@ const main = async (): Promise<void> => {
 
             if (argv.s) {
                 const emailData = dataStoreInstance.getEmailData();
-                console.log(emailData);
                 if (emailData) {
                     await sendEmail(argv.e, emailData, true);
                 }
             }
 
             if (argv.o) {
-                console.log("argv.o: ", argv.o);
                 const data = JSON.stringify(
                     dataStoreInstance.getEmailData(),
                     null,
                     4
                 );
-                console.log("data", data);
                 if (data) {
                     await filesystemInterfaceInstance.writeDataToFilesystemAsync(
                         argv.o,
