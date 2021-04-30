@@ -19,14 +19,15 @@ const mainFs = () => {
     // console.log(config.getRootDir());
     console.log(Config.rootDir);
 
-    filesystemInterfaceInstance.writeDataToFilesystemAsync("", "");
+    filesystemInterfaceInstance.writeDataToFilesystemAsync("", "KEKW!!!!!!!");
 };
 // mainFs();
 
 const sendEmail = async (
     emailService: EmailTransportTypes,
     emailData: (MicrosoftGraph.PasswordCredential &
-        AzureAdGraphModels.PasswordCredential)[]
+        AzureAdGraphModels.PasswordCredential)[],
+    send: boolean = false
 ) => {
     const testData: MicrosoftGraph.PasswordCredential[] = [
         {
@@ -50,8 +51,8 @@ const sendEmail = async (
 
     // ! Set this to true to send an email
     // ! no confidential info should be sent regardless of columns used, but please make sure you know what you are sending
-    const sendTestEmail: boolean = false;
-    if (sendTestEmail) {
+    // const sendEmail: boolean = true;
+    if (send) {
         // send mail with defined transport object
         const info = await transporter.sendMail({
             from: '"Chuck Testa" <chuck@testa.com>', // sender address
@@ -79,15 +80,62 @@ const main = async (): Promise<void> => {
         "sendgrid",
     ];
     const argv = yargs(process.argv.slice(2)).options({
-        i: { type: "boolean", default: false, alias: "interactive", description: "interactive mode, all other flags are ignored if used" },
-        f: { type: "string", demandOption: true, alias: "file", description: "absolute path to file with data to check" },
-        s: { choices: availableEmailServices, demandOption: true, alias: "email-service", description: "the email service to use" },
-        u: { type: "string", alias: "email-username", description: "username for email service" },
-        p: { type: "string", alias: "email-password", description: "password for email service" },
-        a: { type: "string", alias: "email-api-key", description: "api key for email service" },
-        o: { type: "string", alias: "out-file", description: "absolute path to write the returned data to (if omitted, no file will be created)"},
-        d: { type: "boolean", alias: "display", description: "display terminal output", default: true }
+        i: {
+            type: "boolean",
+            default: false,
+            alias: "interactive",
+            description:
+                "interactive mode, all other flags are ignored if used",
+        },
+        f: {
+            type: "string",
+            demandOption: true,
+            alias: "file",
+            description: "absolute path to file with data to check",
+        },
+        s: {
+            type: "boolean",
+            default: false,
+            alias: "send-email",
+        },
+        e: {
+            choices: availableEmailServices,
+            demandOption: true,
+            alias: "email-service",
+            description: "the email service to use",
+        },
+        u: {
+            type: "string",
+            alias: "email-username",
+            description: "username for Mailtrap email service",
+        },
+        p: {
+            type: "string",
+            alias: "email-password",
+            description: "password for Mailtrap email service",
+        },
+        a: {
+            type: "string",
+            alias: "email-api-key",
+            description: "api key for Sendgrid email service",
+            conflicts: ["u", "p"],
+        },
+        o: {
+            type: "string",
+            alias: "out-file",
+            description:
+                "absolute path to write the returned data to (if omitted, no file will be created)\n NOTE: This will NOT overwrite an existing file at this point in time!",
+        },
+        d: {
+            type: "boolean",
+            alias: "display",
+            description: "display terminal output",
+            default: true,
+        },
     }).argv;
+
+    // TODO: check out positional descriptions (can tie the service credentials all together perhaps?)
+    // https://github.com/yargs/yargs/blob/master/docs/advanced.md#describing-positional-arguments
 
     if (argv.i) {
         console.log("this was interactive");
@@ -120,10 +168,32 @@ const main = async (): Promise<void> => {
                 dataStoreInstance.bulkAddSecretsToStore(secrets);
             }
 
-            const emailData = dataStoreInstance.getEmailData();
-            console.log(emailData);
-            if (emailData) {
-                await sendEmail(argv.s, emailData);
+            if (argv.s) {
+                const emailData = dataStoreInstance.getEmailData();
+                console.log(emailData);
+                if (emailData) {
+                    await sendEmail(argv.e, emailData, true);
+                }
+            }
+
+            if (argv.o) {
+                console.log("argv.o: ", argv.o);
+                const data = JSON.stringify(
+                    dataStoreInstance.getEmailData(),
+                    null,
+                    4
+                );
+                console.log("data", data);
+                if (data) {
+                    await filesystemInterfaceInstance.writeDataToFilesystemAsync(
+                        argv.o,
+                        data
+                    );
+                } else {
+                    console.log(
+                        `File at ${argv.o} appears to be empty - please ensure it contains data`
+                    );
+                }
             }
         } catch (err) {
             console.error(err);

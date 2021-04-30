@@ -4,7 +4,7 @@ import Config from "../../config/config";
 import {
     checkFileExistsForRead,
     createDirIfNotExistsAsync,
-    doesDirExistsForWritesAsync
+    doesDirExistsForWritesAsync,
 } from "../../utils/filesystem.utils";
 
 interface FilesystemInterfaceConstructor {
@@ -23,10 +23,7 @@ export interface FilesystemInterfaceInterface {
      * @returns A string with the contents of the file
      */
     readDataFromFilesystemAsync(inputFilePath: string): Promise<string>;
-    writeDataToFilesystemAsync(
-        outputDir: string,
-        outputFileName: string
-    ): Promise<void>;
+    writeDataToFilesystemAsync(filePath: string, data: string): Promise<void>;
 }
 
 /**
@@ -69,17 +66,30 @@ export const FilesystemInterface: FilesystemInterfaceConstructor = class Filesys
 
     // TODO: add a check whether the file exists - if yes confirm that we can overwrite it (writefile just blitzes the current file)
     // ^ fsPromises.access(path)
-    writeDataToFilesystemAsync = async (
-        outputDir: string,
-        outputFileName: string
-    ) => {
+    writeDataToFilesystemAsync = async (filePath: string, data: string) => {
+        let outputDir = path.dirname(filePath);
+        let outputFileName = path.basename(filePath);
+
         let targetDir: string;
         let targetFileName: string;
+
+        const defaultOutDir = path.join(
+            Config.rootDir,
+            Config.defaultOutputDir
+        );
+
+        //TODO: TEST - if an empty string is provided, the root dir is used (it resolves to .)
         if (typeof outputDir !== "string" || outputDir.length === 0) {
             console.warn(
-                `An invalid directory was provided, falling back to ${Config.defaultOutputDir}`
+                `An invalid directory was provided, falling back to ${defaultOutDir}`
             );
-            targetDir = path.join(Config.rootDir, Config.defaultOutputDir);
+            targetDir = defaultOutDir;
+        } else if (outputDir.startsWith(".")) {
+            console.log(
+                `A relative path was provided, please ensure you use an absolute path`
+            );
+            console.log(`Falling back to ${defaultOutDir}`);
+            targetDir = defaultOutDir;
         } else {
             targetDir = outputDir;
         }
@@ -107,7 +117,7 @@ export const FilesystemInterface: FilesystemInterfaceConstructor = class Filesys
         }
 
         const outputFilePath: string = path.join(targetDir, targetFileName);
-        fs.writeFile(outputFilePath, "KEKW", (err) => {
+        fs.writeFile(outputFilePath, data, (err) => {
             if (err) {
                 throw err;
             }
