@@ -89,7 +89,7 @@ const main = async (): Promise<void> => {
         },
         f: {
             type: "string",
-            demandOption: true,
+
             alias: "file",
             description: "absolute path to file with data to check",
         },
@@ -100,7 +100,7 @@ const main = async (): Promise<void> => {
         },
         e: {
             choices: availableEmailServices,
-            demandOption: true,
+
             alias: "email-service",
             description: "the email service to use",
         },
@@ -154,17 +154,24 @@ const main = async (): Promise<void> => {
 
     if (!argv.i) {
         console.log("non-interactive");
-        try {
-            const fileData = await filesystemInterfaceInstance.readDataFromFilesystemAsync(
-                argv.f
+        if (!argv.f || !argv.e) {
+            console.error(
+                "Both an input file path (-f flag) and an email service (-e flag) are required in non-interactive mode.\n\nPlease enter both flags and run this again. Please use --help if futher information is required"
             );
+            return;
+        }
+
+        try {
+            const fileData =
+                await filesystemInterfaceInstance.readDataFromFilesystemAsync(
+                    argv.f
+                );
 
             dataStoreInstance.setDataObjectsToCheck(JSON.parse(fileData));
             const data = dataStoreInstance.getDataObjectsToCheck();
             if (data) {
-                const secrets = await dataRequestorInstance.requestSecretsForAllApps(
-                    data
-                );
+                const secrets =
+                    await dataRequestorInstance.requestSecretsForAllApps(data);
                 dataStoreInstance.bulkAddSecretsToStore(secrets);
             }
 
