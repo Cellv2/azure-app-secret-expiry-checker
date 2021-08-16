@@ -5,6 +5,7 @@
     "main": "build/index.js",
     "scripts": {
         "start": "ts-node-dev --respawn src",
+        "start:interactive": "npm run start -- -i",
         "build": "npm run build:clean && tsc",
         "build:clean": "rimraf ./build",
         "view:coverage": "serve coverage/lcov-report",
