@@ -38,7 +38,7 @@
         "ts-node-dev": "^1.1.6"
     },
     "dependencies": {
-        "@azure/msal-node": "^1.0.1",
+        "@azure/msal-node": "^1.14.6",
         "chalk": "^4.1.0",
         "dotenv": "^8.2.0",
         "html-to-text": "^7.0.0",
